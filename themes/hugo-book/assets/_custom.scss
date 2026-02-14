@@ -1,0 +1,20 @@
+/* You can add custom styles here. */
+
+// @import "plugins/numbered";
+
+.markdown .book-badge span.book-badge-title {
+  //background-color: #505070; /* pick your color */
+  --background-opacity: 0.3;
+}
+
+figure.align-center img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figure.align-right img {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}

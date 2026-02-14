@@ -1,0 +1,62 @@
+############################################
+# Hugo build output / generated artifacts
+############################################
+
+# Default output directory
+/public/
+
+# Hugo pipes / generated resources (SCSS, JS bundling, image processing, etc.)
+/resources/_gen/
+
+# Hugo build lock file (can appear during builds)
+/.hugo_build.lock
+
+# (Optional) Hugo stats file (generated if you enable build stats)
+/hugo_stats.json
+
+
+############################################
+# IDEs / editors
+############################################
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+/.idea/
+*.iml
+*.ipr
+*.iws
+/out/
+
+# VS Code
+/.vscode/
+
+
+############################################
+# macOS noise
+############################################
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+
+############################################
+# (Nice-to-have) Common OS noise
+############################################
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+

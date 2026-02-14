@@ -1,0 +1,49 @@
+{{ define "main" }}
+  <article class="markdown">
+    <h1>{{ .Title }}</h1>
+    {{ with .Content }}
+      {{ . }}
+    {{ end }}
+  </article>
+
+  {{ $p := .Paginate (.RegularPagesRecursive.ByDate.Reverse) }}
+
+  <div class="book-posts">
+    {{ range $p.Pages }}
+      <article class="book-post">
+        <h2>
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h2>
+
+        {{ with (.GetTerms "tags") }}
+          <div class="book-post-tags">
+            {{ range . }}
+              <a class="book-tag" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ with .Date }}
+          <div class="book-post-meta">
+            <small>{{ .Format "2006-01-02" }}</small>
+          </div>
+        {{ end }}
+
+        <div class="book-post-summary markdown">
+          {{ .Summary }}
+          {{ if .Truncated }}
+            <p><a href="{{ .RelPermalink }}">Read more…</a></p>
+          {{ end }}
+        </div>
+      </article>
+    {{ end }}
+  </div>
+
+  {{ if gt $p.TotalPages 1 }}
+    <nav class="book-pagination">
+      {{ if $p.HasPrev }}<a href="{{ $p.Prev.URL }}">← Newer</a>{{ end }}
+      <span>Page {{ $p.PageNumber }} / {{ $p.TotalPages }}</span>
+      {{ if $p.HasNext }}<a href="{{ $p.Next.URL }}">Older →</a>{{ end }}
+    </nav>
+  {{ end }}
+{{ end }}

@@ -1,0 +1,17 @@
+{{- /* Usage: {{< inline-svg "icons/logo.svg" >}}  (path is relative to /assets) */ -}}
+{{- $path := .Get 0 -}}
+{{- if not $path -}}
+  {{- errorf "inline-svg shortcode: missing path argument (e.g. {{< inline-svg \"icons/logo.svg\" >}})" -}}
+{{- end -}}
+
+{{- $res := resources.Get $path -}}
+{{- if not $res -}}
+  {{- errorf "inline-svg shortcode: asset not found: %q (looked in /assets)" $path -}}
+{{- end -}}
+
+{{- if ne $res.MediaType.SubType "svg" -}}
+  {{- errorf "inline-svg shortcode: asset is not an SVG: %q (got %s)" $path $res.MediaType.Type -}}
+{{- end -}}
+
+{{- /* Output raw SVG markup */ -}}
+{{- $res.Content | safeHTML -}}

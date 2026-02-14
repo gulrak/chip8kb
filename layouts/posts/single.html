@@ -1,0 +1,20 @@
+{{ define "main" }}
+  <article class="markdown">
+    <h1>{{ .Title }}</h1>
+
+    <div class="book-post-meta">
+      {{ with .Date }}<small>{{ .Format "2006-01-02" }}</small>{{ end }}
+      {{ with .Params.author }}<small> · by {{ . }}</small>{{ end }}
+    </div>
+
+    {{ with (.GetTerms "tags") }}
+      <div class="book-post-tags">
+        {{ range . }}
+          <a class="book-tag" href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a>
+        {{ end }}
+      </div>
+    {{ end }}
+
+    {{ .Content }}
+  </article>
+{{ end }}

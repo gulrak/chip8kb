@@ -1,0 +1,73 @@
+baseURL: "https://chip8kb.gulrak.net/"
+title: "CHIP-8-KB"
+theme: "hugo-book"
+languagecode: "en"
+defaultcontentlanguage: "en"
+disableComments: true
+enableEmoji: true
+cleanDestinationDir: true
+enableGitInfo: true
+
+pagination:
+  pagerSize: 20
+
+markup:
+  highlight:
+    style: "github"
+  goldmark:
+    renderer:
+      wrapStandAloneImageWithinParagraph: false
+      hardWraps: false
+      unsafe: true
+      xhtml: false
+  tableOfContents:
+    startLevel: 1
+    endLevel: 3
+    ordered: false
+
+params:
+  BookTheme: "auto"
+  BookToC: true
+  BookDateFormat: '2006-01-02 15:04'
+  BookLastChangeLink: 'https://github.com/gulrak/chip8kb/commit/{{ .GitInfo.Hash }}'
+  BookFavicon: "/img/favicon.png"
+  BookLogo: ""
+  BookSection: "*"
+  social:
+    - name: "Github"
+      icon: "fa-brands fa-github fa-2x"
+      weight: 1
+      url: "https://github.com/gulrak/chip8"
+    - name: "Mastodon"
+      icon: "fa-brands fa-mastodon fa-2x"
+      weight: 3
+      url: "https://mastodon.social/@Gulrak"
+
+taxonomies:
+  category: "categories"
+  series: "series"
+  tag: "tags"
+  author: "authors"
+
+menu:
+  home:
+    - name: "BLog"
+      pageRef: "/posts/"
+      weight: 1
+#    - name: "Tutorial"
+#      pageRef: "/implementing-chip-8/"
+#      weight: 2
+    - name: "Reference"
+      weight: 3
+      pageRef: "/reference/"
+    - name: "Legal"
+      url: "https://gulrak.net/legal"
+      weight: 100
+  after:
+    - name: "Legal Notice"
+      url: "https://gulrak.net/legal"
+      weight: 100
+
+  # - name: "Hugo Themes"
+  #   url: "https://themes.gohugo.io/themes/hugo-book/"
+  #   weight: 20
