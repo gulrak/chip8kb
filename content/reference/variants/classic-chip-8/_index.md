@@ -155,12 +155,66 @@ even have no effect, and setting delay to 1 is a very common pattern to pace a g
 | Drawing&nbsp;mode | XOR – sprites are XORed onto the current framebuffer. If any pixel changes from set to unset during a `Dxyn`, set `VF = 1`, and if that happens not once during the drawing set `VF = 0`. |
 | Refresh           | 60Hz as the original was made for an NTSC computer connected to a TV.                                                                                                                                         |
 
-A common approach for generic interpreters is to simply use a byte-per-pixel array for the screen. This is not what the
-original CHIP-8 implementation did, it had eight pixels packed into a single byte, and thus a frame buffer takes only
-256 bytes. For most modern platforms that is not a very useful approach, but totally possible to emulate. An even
-better approach on modern computers is to use an unsigned 64 bit integer array for the framebuffer, this is only 32
-integers, one for the row, and eliminates the need for an inner loop in the `Dxyn` opcode.
+A common approach for generic interpreters is to simply use a byte-per-pixel array for the screen, and I strongly recommend to start
+with this if you make a generic CHIP-8. Displaying the screen
+could thus as simple as (pseudocode):
 
+```python
+# Display of a 64*32=2048 pixel frame buffer
+# assuming WIDTH = 64 and HEIGHT = 32
+for y from 0 to HEIGHT-1:
+    for x from 0 to WIDTH-1:
+        index = x + (y * WIDTH)
+        pixel = frameBuffer[index]
+        drawPixel(x, y, pixel)
+```
+
+> [!WARNING]
+> **COSMAC VIP:** \
+> This is not what the original CHIP-8 implementation did, it had eight pixels packed into a single byte, and thus a frame buffer takes only
+> 256 bytes. For most modern platforms that is not a very useful approach, but totally possible to emulate. Display of such
+> a frame buffer becomes a bit more complicated (pseudocode):
+>
+> ```python
+> # Display of a 64*32/8=256 byte bit-pixel frame buffer like in the COSMAC VIP
+> # assuming WIDTH = 64, HEIGHT = 32 and BYTES_PER_ROW = WIDTH / 8
+> for y from 0 to HEIGHT-1:
+>     rowBase = y * BYTES_PER_ROW
+>     for byteIndex from 0 to BYTES_PER_ROW-1:
+>         pixels = frameBuffer[rowBase + byteIndex]  # one packed byte = 8 pixels
+>         for bit from 0 to 7:
+>             x = (byteIndex * 8) + bit
+>             pixel = (pixels & (0x80 >> bit))
+>             drawPixel(x, y, pixel)
+> ```
+
+> [!TIP]
+> **TIP:** \
+> An even better approach on modern computers is to use an unsigned 64 bit integer
+> array for the framebuffer, this is only 32  integers, one for the row. Displaying this
+> is barely different in complexity to the 2048 pixel integer approach, and it
+> eliminates the need for an inner loop in the `Dxyn` opcode, making for a significant
+> faster sprite drawing. Displaying such a frame buffer becomes basically (pseudocode):
+> 
+> ```python
+> # Display of a 64*32 pixel frame buffer using a 32 element 64-bit unsigned
+> # integer array and assuming WIDTH = 64 and HEIGHT = 32
+> for y from 0 to HEIGHT-1:
+>     pixels = frameBuffer[y]
+>     for x from 0 to WIDTH-1:
+>         pixel = (pixels >> (63-x)) & 1 
+>         drawPixel(x, y, pixel)
+> ```
+> But be aware that this doesn't scale well to the hires screen of SCHIP/XO-CHIP,
+> as most languages don't have 128 bit integers, and even then, the calculations
+> behind the scenes are more complicated due to normal registers typically being
+> 64 bit at best.
+
+Be aware that all of this is not meant to show the best way to actually display
+the screen, but rather to give you an idea of how the choice influences the
+code. If your language/platform allows for it, filling a texture withe the pixels
+and render that is a much more efficient approach, but then `drawPixel` becomes the
+code to set the data into the texture and that is out of scope for this reference.
 
 ## 2.6 Font Set
 
@@ -299,6 +353,14 @@ The table below enumerates **every opcode** supported by the original COSMAC VIP
 
 _*) The [original CHIP-8 documentation](../../resources/original-vip-chip8-documentation/#table-i---chip-8-instructions) does not list
 `8xy3`, `8xy6`, `8xy7`, and `8xyE` but still supports them. This is also the reason why e.g., CHIP-8 on the DREAM6800 doesn't implement them._
+
+## Specific Notes on Opcodes
+
+### `Dxyn` - Drawing Graphics
+
+The `Dxyn` opcode draws a sprite at position `Vx & 63` and `Vy & 31` with data from memory
+pointed to by `I`. The wrapping of those intial 
+
 
 > [!NOTE]
 > **NOTE:**

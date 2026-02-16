@@ -34,14 +34,14 @@ Okay, you know CHIP-8, but what's different about SUPER-CHIP? Here are the diffe
 * `00FF` enable extended mode (and switch to hires, 128×64)
 * `8xy1`/`8xy2`/`8xy3` do not reset `VF` but leave it unchanged.
 * `8xy6`/`8xyE` are only use `Vx`, so they do `Vx >>= 1`/`Vx <<= 1` instead of `Vx = Vy >> 1`/`Vx = Vy << 1` and `y` is ignored.
-* `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`.
+* `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`, _so the `x` nibble doubles as part of the 12 bit address and an index for the register to add_.
 * `Dxy0` draws a graphics pattern from memory at `I` like CHIP-8 `Dxyn`, but with a size of 8×16 pixels in lores mode and 16×16 pixels in extended/hires mode (the pattern is orderd in rows, so first 8 pixels if first row, second 8 pixels of first row, first 8 pixels of second row and so on).
 * Incrementing `I` above `0xFFF` with `Fx1E` ends the interpreter.
 * `Fx75`/`Fx85` store/load registers from `V0` to `Vx` to a persistent storage (`x <= 7`).
 
 > [!NOTE]
 > Most generic SUPER-CHIP emulators do clear the screen on mode change. Also the detail of drawing
-> lores as 2x2 doesn't need to be emulated, if the screen is cleared on mode change, as no artifacs can be visible.
+> lores as 2x2 doesn't need to be emulated, if the screen is cleared on mode change, as no artifacts can be visible.
 > It is needed though if one implements original "lores half-pixel" scrolling (see below).
 > 
 > Also generic emulators often draw 16×16 pixels on `Dxy0` in lores too e.g., Octo is unable to draw 8×16.
@@ -52,7 +52,7 @@ Okay, you know CHIP-8, but what's different about SUPER-CHIP? Here are the diffe
 > **Legacy SCHIP Drawing:** \
 > On the calculator, the actual lores 2×2-drawing routine works a bit unusual: It draws the pattern into the
 > even display rows doubling the pixels, and collision detection works on any of those two "sub-pixels" of each
-> doubled pixel (as it does no mode change clear the result from a previous hires content might lead to differen
+> doubled pixel (as it does no mode change clear the result from a previous hires content might lead to different
 > results for each half pixel). Then it copies 32 hires pixels, starting from the `hiresSpritePosX & 0x70` to the
 > odd row (no XOR here, the 32 pixels will look the same as the ones in the even row, so really a copy). This
 > can lead to changes in the odd rows outside the border of the actual drawn pattern.

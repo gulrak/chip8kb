@@ -28,7 +28,7 @@ Okay, you know CHIP-8, but what's different about CHIP-48? Here are the differen
 * There is a display wait.
 * `8xy1`/`8xy2`/`8xy3` do not reset `VF` but leave it unchanged.
 * `8xy6`/`8xyE` are only use `Vx`, so they do `Vx >>= 1`/`Vx <<= 1` instead of `Vx = Vy >> 1`/`Vx = Vy << 1` and `y` is ignored.
-* `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`.
+* `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`, _so the `x` nibble doubles as part of the 12 bit address and an index for the register to add_.
 * Incrementing `I` above `0xFFF` with `Fx1E` ends the interpreter.
 * `Fx55`/`Fx65` increment `I` by `x` instead of `x+1`.
 

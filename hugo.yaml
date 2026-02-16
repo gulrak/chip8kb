@@ -13,7 +13,7 @@ pagination:
 
 markup:
   highlight:
-    style: "github"
+    noClasses: false
   goldmark:
     renderer:
       wrapStandAloneImageWithinParagraph: false
