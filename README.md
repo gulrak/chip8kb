@@ -1,5 +1,7 @@
 # CHIP-8 Knowledge Base - Project
 
+License: CC-BY-NC-4.0
+
 This is the repository for the Hugo based website of the CHIP-8 Knowledge Base.
 It is hosted at https://chip8kb.gulrak.net/ and if you find errors or missing details
 or have suggestions, please open an issue.
