@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+shopt -s nullglob
+for gen in tools/generate-*.py; do
+  echo "==> Running generator: $gen"
+  python3 "$gen"
+done
+
+echo "==> Starting Hugo server"
+hugo server -D --disableFastRender

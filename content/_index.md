@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "CHIP-8 Knowledge Base"
 layout: landing
 ---
 

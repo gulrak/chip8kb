@@ -4,6 +4,7 @@
 
 # Default output directory
 /public/
+/content/recent-changes.md
 
 # Hugo pipes / generated resources (SCSS, JS bundling, image processing, etc.)
 /resources/_gen/
