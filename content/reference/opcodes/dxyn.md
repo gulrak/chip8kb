@@ -14,7 +14,7 @@ weight: 130
 {{< inline-svg "img/svg/op-dxyn.svg" >}}
 
 ## Available
-[CHIP-8](/reference/chip8), [CHIP-10](/reference/chip10), [CHIP-48](/reference/chip48), [SuperChip-1.0](/reference/schip10), [SuperChip-1.1](/reference/schip11), [MegaChip](/reference/megachip), [XO-CHIP](/reference/xochip)
+[CHIP-8](/reference/variants/classic-chip-8), CHIP-10, [CHIP-48](/reference/variants/chip-48), [SUPER-CHIP](/reference/variants/superchip), [MEGA-CHIP](/reference/variants/megachip), [XO-CHIP](/reference/variants/xo-chip)
 
 ## Description
 
