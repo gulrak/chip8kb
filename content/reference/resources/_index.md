@@ -1,8 +1,10 @@
-+++
-date = '2025-07-31T18:24:45+02:00'
-title = 'Additional Resources'
-weight = 50
-+++
+---
+title: 'Additional Resources'
+date: '2025-07-31T18:24:45+02:00'
+bookCollapseSection: true
+weight: 50
+---
+
 # Additional Resources
 
 > [!WARNING]
@@ -29,6 +31,7 @@ their original form, quoted to give context to the information on this wiki.
 * [COSMAC VIP: Original CHIP-8 Documentation](original-vip-chip8-documentation)
 * [HP-48SX: SUPER CHIP v1.0](hp-48sx-super-chip-v1.0)
 * [HP-48SX: SUPER CHIP v1.1](hp-48sx-super-chip-v1.1)
+* [Chipper v2.11 Documentation](chipper-v2.11-documentation)
 * [MegaChip8 v1.0b](megachip10)
 * [⎋ XO-CHIP v1.1](https://johnearnest.github.io/Octo/docs/XO-ChipSpecification.html)
 
@@ -49,7 +52,7 @@ CHIP-8 or its variants:
 
 ### Tutorials
 
-* [⎋ Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/)
+* [⎋ Guide to making a CHIP-8 emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/) - The most recommended tutorial by Tobias V. I. Langhoff, 2020
 
 
 ### Finding CHIP-8 Variant Games

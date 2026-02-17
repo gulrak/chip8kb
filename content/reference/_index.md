@@ -52,7 +52,7 @@ to write about them:
 * MEGACHIP (with comments on the original incomplete implementation and derived works)
 * XO-CHIP (with comments on Octo where relevant)
 
-There are dozens of variants out there. Some of them very exotic. A good overview of these and many more variants are on Tobias V. Langhoff's
+There are dozens of variants out there. Some of them very exotic. A good overview of these and many more variants are on Tobias V. I. Langhoff's
 excellent [⎋ CHIP-8 extensions and compatibility](https://chip-8.github.io/extensions/) pages. 
 
 I will add more variants to the documentation (expect CHIP-8X), but I needed to start somewhere,

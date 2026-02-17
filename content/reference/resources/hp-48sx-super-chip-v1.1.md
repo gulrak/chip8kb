@@ -10,8 +10,8 @@ weight: 25
 - > [!NOTE]
   > **NOTE:**
   > This is a verbatim quote of the original SUPER-CHIP 1.1
-  > release notes as published by Erik Bryntse in 1991-05-24 in
-  > [comp.sys.handhelds](https://groups.google.com/g/comp.sys.handhelds/c/sDY9zFb6KUo/m/JcYBK2_yerMJ)
+  > release notes as published by Erik Bryntse on 1991-05-24 in
+  > [⎋ comp.sys.handhelds](https://groups.google.com/g/comp.sys.handhelds/c/sDY9zFb6KUo/m/JcYBK2_yerMJ)
   > 
   > It is quoted as is for historic reference. Clarifications
   > are annotated by [**NOTE:** ...] inserts like this.

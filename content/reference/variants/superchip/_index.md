@@ -172,10 +172,10 @@ _Same as the BETA one (above)._
 # Acknowledgments
 
 * Special thanks to Chromatophore for his analysis of the specifics of SUPER-CHIP
-  in his [HP48-Superchip](https://github.com/Chromatophore/HP48-Superchip) project.
+  in his [⎋ HP48-Superchip](https://github.com/Chromatophore/HP48-Superchip) project.
   This helped me a lot to understand some oddities of the HP-48SX based
   implementations.
 * Thanks to Tobias V. I. Langhoff for his page about
-  [Running CHIP-8 on a HP 48 calculator](https://tobiasvl.github.io/blog/chip-8-hp-48/)
+  [⎋ Running CHIP-8 on a HP 48 calculator](https://tobiasvl.github.io/blog/chip-8-hp-48/)
   as it was invaluable to get me started again on loading software into the calculator
   and trying things out for myself.
