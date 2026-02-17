@@ -2,19 +2,19 @@
 title: "Dxyn"
 date: 2022-12-31T08:11:19+01:00
 draft: false
-weight: 130
+weight: 1300
 ---
 
 # Dxyn - Draw a Sprite
 
 ## Assembly Syntax
 **Octo:** `sprite v<x> v<y> 0x<n>`\
-**Chipper:** `DRW V<x>,V<y>,<n>`
+**Chipper:** `DRW V<x>,V<y>,<n>`
 
 {{< inline-svg "img/svg/op-dxyn.svg" >}}
 
 ## Available
-[CHIP-8](/reference/variants/classic-chip-8), CHIP-10, [CHIP-48](/reference/variants/chip-48), [SUPER-CHIP](/reference/variants/superchip), [MEGA-CHIP](/reference/variants/megachip8), [XO-CHIP](/reference/variants/xo-chip)
+[CHIP-8](/reference/variants/classic-chip-8), [CHIP-48](/reference/variants/chip-48), [SUPER-CHIP](/reference/variants/superchip), [MEGA-CHIP](/reference/variants/megachip8), [XO-CHIP](/reference/variants/xo-chip)
 
 ## Description
 

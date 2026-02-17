@@ -12,3 +12,9 @@ weight: 30
 > please be patient. I try to start with the complex ones and work my way down.
 
 * [Dxyn](dxyn) - Draw a sprite
+* [Fx55](fx55) - Store registers in memory
+* [Fx65](fx65) - Load registers from memory
+* [Fx75](fx75) - Store registers to flags storage
+* [Fx85](fx85) - Load registers from flags storage
+
+

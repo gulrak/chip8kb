@@ -37,7 +37,7 @@ Okay, you know CHIP-8, but what's different about SUPER-CHIP? Here are the diffe
 * `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`, _so the `x` nibble doubles as part of the 12 bit address and an index for the register to add_.
 * `Dxy0` draws a graphics pattern from memory at `I` like CHIP-8 `Dxyn`, but with a size of 8×16 pixels in lores mode and 16×16 pixels in extended/hires mode (the pattern is orderd in rows, so first 8 pixels if first row, second 8 pixels of first row, first 8 pixels of second row and so on).
 * Incrementing `I` above `0xFFF` with `Fx1E` ends the interpreter.
-* `Fx75`/`Fx85` store/load registers from `V0` to `Vx` to a persistent storage (`x <= 7`).
+* `Fx75`/`Fx85` store/load registers from `V0` to `Vx` to a persistent storage (`x <= 7`), the limit of at most 8 registers is based on th fact that the calculator had only persistent storage for that many (64 bits user flags, that survived exit of the interpreter).
 
 > [!NOTE]
 > Most generic SUPER-CHIP emulators do clear the screen on mode change. Also the detail of drawing
@@ -47,6 +47,13 @@ Okay, you know CHIP-8, but what's different about SUPER-CHIP? Here are the diffe
 > Also generic emulators often draw 16×16 pixels on `Dxy0` in lores too e.g., Octo is unable to draw 8×16.
 > Ideally make it an option/quirk. As most SUPER-CHIP games use hires, there are very few programs making 
 > use of the 8×16 lores draw.
+> 
+> The `Fx75`/`Fx85` instructions have no hard established way of persistence outside of the calculator,
+> so they could be kept in a static array, surviving emulator resets, or in a global file, so they
+> survive the end of the emulator process, and for the latter, the option is to save them in a ROM
+> specific file or in a shared one. The shared file mimics the way the calculator worked more (as
+> programs could basically "communicate" over them), but the per-ROM file allows for multiple games
+> to store e.g. progress, and pick up even after a different ROM uses those opcodes. 
 
 > [!WARNING]
 > **Legacy SCHIP Drawing:** \
