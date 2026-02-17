@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 import hashlib
+import os
 import re
 import subprocess
 from typing import List, Optional, Tuple, Union
@@ -200,6 +201,8 @@ def list_recent_changed_markdown_files(
         if path in exclude_exact:
             continue
         if any(path.startswith(pfx) for pfx in exclude_prefixes):
+            continue
+        if not os.path.exists(os.path.join(repo_root, path)):
             continue
 
         if path in seen:

@@ -1,6 +1,6 @@
 ---
-title: "VIP-CHIP-8: Emulation Timing"
-date: 2022-12-31T08:11:19+01:00
+title: "Cycle Based Emulation Timing"
+date: 2025-01-05T08:11:19+01:00
 draft: false
 ---
 
@@ -196,7 +196,12 @@ This work, and a lot of other of my work related to CHIP-8, builds on the work o
 
 **Gooitzen S. van der Wal** and **J. W. Wentworth**, who analyzed and documented the working of the CHIP-8 interpreter on the COSMAC VIP and the operating system in its 512 byte ROM in [⎋ VIPER Volume I, Issue 2](https://github.com/mattmikolay/viper/blob/master/volume1/issue2.pdf), August 1978 and [⎋ VIPER Volume I, Issue 3](https://github.com/mattmikolay/viper/blob/master/volume1/issue3.pdf), September 1978. (And thanks to *Matt Mikolay* for putting up the scans for non-commercial use.)
 
-**Laurence Scotford** for his work on [⎋ Chip-8 on the COSMAC VIP](https://www.laurencescotford.net/2020/07/25/chip-8-on-the-cosmac-vip-index/), where he in-detail explains the inner workings of the original CHIP-8 interpreter as published for the COSMAC VIP. He also did cycle analyses but after some inaccuracies, and e.g. Dxyn not being detailed enough, I still recalculated them for all opcodes again myself, but I would not have started the endeavor of making a cycle accurate high level emulated VIP CHIP-8, if it wasn't for his work.
+**Laurence Scotford** for his work on [⎋ Chip-8 on the COSMAC VIP](https://www.laurencescotford.net/2020/07/25/chip-8-on-the-cosmac-vip-index/),
+where he in-detail explains the inner workings of the original CHIP-8 interpreter 
+as published for the COSMAC VIP. He also did cycle analyses for them. However after
+some inaccuracies, and e.g., Dxyn not being detailed enough, I still recalculated
+them for all opcodes again myself. Admittedly, I would not have started the endeavor
+of making a cycle accurate high level emulated VIP CHIP-8, if it wasn't for his work.
 
 And all the people I had fruitful discussions with, on the Emulation Development Discord.
 

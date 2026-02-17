@@ -144,7 +144,7 @@ function op_Dxyn(opcode):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - -
         # only if this implementation supports wrapping sprites
         if wrappingEnabled == true:
-          yp =  yp % HEIGHT           # wrap y
+          yp =  yp % HEIGHT           # wrap yp
         # - - - - - - - - - - - - - - - - - - - - - - - - - - -
           
         if yp >= HEIGHT:
@@ -160,7 +160,7 @@ function op_Dxyn(opcode):
             # - - - - - - - - - - - - - - - - - - - - - - - - - - -
             # only if this implementation supports wrapping sprites
             if wrappingEnabled == true:
-              xp = xp % WIDTH         # wrap x
+              xp = xp % WIDTH         # wrap xp
             # - - - - - - - - - - - - - - - - - - - - - - - - - - -
               
             if xp >= WIDTH:
@@ -172,7 +172,7 @@ function op_Dxyn(opcode):
             if spritePixel == 0:
                 continue              # nothing to draw for this bit
 
-            index = x + (y * WIDTH)
+            index = xp + (yp * WIDTH)
 
             # framebuffer is 0/1 (or 0/nonzero); XOR behavior:
             if (frameBuffer[index] & spritePixel) != 0:

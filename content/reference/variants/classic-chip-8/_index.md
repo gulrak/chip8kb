@@ -1,6 +1,7 @@
 ---
 title: "VIP CHIP-8"
 date: 2025-12-31T08:11:19+01:00
+bookCollapseSection: true
 weight: 1
 ---
 
