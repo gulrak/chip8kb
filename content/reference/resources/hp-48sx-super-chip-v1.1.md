@@ -76,8 +76,11 @@ this causes one or more pixels to be erased, VF is <> 00,
 otherwise 00.
 
 In extended screen mode the resolution is 64 by 128 pixels. A
-sprite of 16x16 size is available. [_NOTE: This is written strangely
-but it means 128 columns and 64 rows.]
+sprite of 16x16 size is available.
+
+> [!NOTE]
+> **NOTE:** This is written strangely
+> but it means 128 columns and 64 rows.
 
 There are two timers: the delay timer and the sound timer. Both
 timers count down about 60 times per second when nonzero; the
