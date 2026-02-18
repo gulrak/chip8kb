@@ -42,8 +42,8 @@ S-CHIP offers:
 ## Introduction to CHIP
 
 For those who don't remember, the CHIP-8 programming language was
-used in a number of home computers based on RCA's CDP1802 pro-
-cessor in the late 1970's. It's a small, interpreted language
+used in a number of home computers based on RCA's CDP1802
+processor in the late 1970's. It's a small, interpreted language
 designed specifically for writing simple video games. It has
 less than 40 instructions, including arithmetic, control flow,
 graphics, and sound. The instructions are all 16 bits long and
@@ -70,10 +70,10 @@ A CHIP-8 program displays graphics by drawing sprites that are 8
 pixels wide and 1..15 pixels high. The screen resolution is 32 by
 64 pixels in standard mode. The origin is the upper left corner
 of the screen, and all coordinates are positive. The sprites are
-stored in bigendian format, i.e., the most significant bit corre-
-sponds to the leftmost pixel. All drawing is done in XOR mode. If
-this causes one or more pixels to be erased, VF is <> 00, other-
-wise 00.
+stored in bigendian format, i.e., the most significant bit
+corresponds to the leftmost pixel. All drawing is done in XOR mode. If
+this causes one or more pixels to be erased, VF is <> 00,
+otherwise 00.
 
 In extended screen mode the resolution is 64 by 128 pixels. A
 sprite of 16x16 size is available. [_NOTE: This is written strangely
@@ -139,8 +139,8 @@ FX85* Read V0..VX from RPL user flags (X <= 7)
 
 ## Notes on the HP48SX implementation
 
-CHIP-8 programs are stored in the HP48SX as string objects con-
-taining the bytes of the program in increasing address order,
+CHIP-8 programs are stored in the HP48SX as string objects
+containing the bytes of the program in increasing address order,
 beginning with the byte at 0200. The interpreter itself is a
 machine code object that should be run with the CHIP-8 program
 string on level 1. 4 kB of free memory is needed. If an error is
@@ -167,8 +167,8 @@ input.
 
 ## Copyrights, etc
 
-Parts of this document is copied from the original CHIP-48 docu-
-mentation written by Andreas Gustafsson. Below is the original
+Parts of this document is copied from the original CHIP-48
+documentation written by Andreas Gustafsson. Below is the original
 copyright message for CHIP-48 v2.25
 
 (c) Copyright 1990 Andreas Gustafsson
@@ -178,15 +178,14 @@ message is preserved, and any modified versions are clearly marked
 as such.
 
 The program makes use of undocumented low-level features of the
-HP48SX calculator, and may or may not cause loss of data, ex-
-cessive battery drainage, and/or damage to the calculator hard-
-ware. The author takes no responsibility whatsoever for any damage
+HP48SX calculator, and may or may not cause loss of data,
+excessive battery drainage, and/or damage to the calculator
+hardware. The author takes no responsibility whatsoever for any damage
 caused by the use of this program.
 
 THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESSED OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PUR-
-POSE.
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 
 The modifications from CHIP v2.25 to S-CHIP v1.1 is made by
