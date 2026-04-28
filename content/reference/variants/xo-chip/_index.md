@@ -23,7 +23,7 @@ weight = 50
 First of all, why to CHIP-8 and not SUPER-CHIP? Well, the SUPER-CHIP part in XO-CHIP is a simplified version
 of SUPER-CHIP, even with all the options defined by the reference implementation _Octo_ it can
 not be configured to fully emulate the original SUPER-CHIP. So listing the changes to CHIP-8
-is lets out the quirky parts of SUPER-CHIP that are not part of XO-CHIP anyway.
+lets out the quirky parts of SUPER-CHIP that are not part of XO-CHIP anyway.
 
 Okay, with that out of the way, you know CHIP-8, but what's different about CHIP-48? Here are the differences collected at one place:
 
