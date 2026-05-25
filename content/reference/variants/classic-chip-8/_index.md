@@ -58,19 +58,19 @@ Choose the types that match this best for your chosen language.
 
 The CHIP-8 VM/interpreter has the following state:
 
-| Name      | Type                 | Description                                                                                                                                                                                                                                                        |
-|-----------|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `V0...VF` | array of 16 `uint8`  | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.                                                              |
-| `I`       | `uint16`             | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                                                                            |
-| `DT`      | `uint8`              | Delay timer; decremented at 60 Hz while non-zero.                                                                                                                                                                                                                  |
-| `ST`      | `uint8`              | Sound timer; decremented at 60 Hz while non-zero; a beep is produced while `ST > 0`.                                                                                                                                                                               |
-| `PC`*     | `uint16`             | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further. (Sometimes described as “12-bit”, but it’s actually 16-bit—just not all values are safe/meaningful.)                                    |
-| `SP`*     | `uint16`             | Stack pointer; points to the top of the call stack.                                                                                                                                                                                                                |
-| `stack`   | array of 16 `uint16` | Call stack storage, commonly modeled as an array with at least 16 entries (a conventional choice, not from the original implementation).                                                                                                                           |
-| `ram`     | array of 4096 `uint8` | Main memory: 4k of RAM, organized in bytes.                                                                                                                                                                                                                        |
-| `screen`* | array of 2048 `uint8` | Display buffer, for the generic implementation this reference recommends to start with the the very common approach of a full byte per pixel, which _can_ even be even for a later XO-CHIP support, the graphics chapter goes more into detail about alternatives. | 
+| Name                 | Type                 | Description                                                                                                                                                                                                                                                        |
+|----------------------|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `V0...VF`            | array of 16 `uint8`  | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.                                                              |
+| `I`                  | `uint16`             | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                                                                            |
+| `DT`                 | `uint8`              | Delay timer; decremented at 60 Hz while non-zero.                                                                                                                                                                                                                  |
+| `ST`                 | `uint8`              | Sound timer; decremented at 60 Hz while non-zero; a beep is produced while `ST > 0`.                                                                                                                                                                               |
+| `PC`<sup>1</sup>     | `uint16`             | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further. (Sometimes described as “12-bit”, but it’s actually 16-bit—just not all values are safe/meaningful.)                                    |
+| `SP`<sup>1</sup>     | `uint16`             | Stack pointer; points to the top of the call stack.                                                                                                                                                                                                                |
+| `stack`              | array of 16 `uint16` | Call stack storage, commonly modeled as an array with at least 16 entries (a conventional choice, not from the original implementation).                                                                                                                           |
+| `ram`                | array of 4096 `uint8` | Main memory: 4k of RAM, organized in bytes.                                                                                                                                                                                                                        |
+| `screen`<sup>2</sup> | array of 2048 `uint8` | Display buffer, for the generic implementation this reference recommends to start with the the very common approach of a full byte per pixel, which _can_ even be even for a later XO-CHIP support, the graphics chapter goes more into detail about alternatives. | 
 
-*) Stack pointer `SP` and program counter `PC` are internal registers of the interpreter, and in-accessible to 
+<sup>1)</sup> Stack pointer `SP` and program counter `PC` are internal registers of the interpreter, and in-accessible to 
 a CHIP-8 program. The model suggested here is the most common approach to implement them, but stack could
 also be a stack-container if the chosen language offers one, and in that case the stack pointer would be omitted
 (it's the size of the container). The program counter could also be a pointer into the ram or an iterator.
@@ -84,7 +84,11 @@ that are comparable to existing trace logs, so one should be aware of this, when
 > region where the stack pointer points at the end and the stack grows downwards, decrementing the
 > stack pointer by the size of an entry on push and incrementing it by the size of the entry on pop.
 > No known program relies on this behavior though.
-> 
+
+<sup>2)</sup> There are multiple ways to represent the screen in a high-level generic emulator, this is just one option.
+
+> [!WARNING]
+> **COSMAC VIP:** \
 > The original screen buffer is a 256 byte region at the end of the RAM, where each bit represents a pixel.
 > The MSB of each byte is the leftmost of the eight pixels, eight bytes represent a row of the screen.
 
@@ -97,6 +101,9 @@ with a memory layout like this:
 0x200–0xFFF   Program / working RAM (3584 bytes available)
 ```
 Typically font sprites (4×5 pixel glyphs for `0`‑`F`) are stored at either **`0x000-0x04f`** or **`0x050–0x09F`**
+
+As in all CHIP-8 variants of the knowledge base, the execution range of the program is limited to `0xFFF`, as
+all instructions allowing to influence the program counter are limited to 12 bit parameters.
 
 > [!WARNING]
 > **COSMAC VIP:** \
@@ -314,45 +321,45 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 The table below enumerates **every opcode** supported by the original COSMAC VIP implementation of CHIP-8.
 
-| Opcode | Description                                                                                                                                           |
-|--------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `00E0` | clears the screen                                                                                                                                     |
-| `00EE` | return from subroutine to address pulled from stack                                                                                                   |
-| `0mmm` | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                           |
-| `1mmm` | jump to address `mmm`                                                                                                                                 |
-| `2mmm` | push return address onto stack and call subroutine at address `mmm`                                                                                   |                                       
-| `3xkk` | skip next opcode if `Vx == kk`                                                                                                                        |
-| `4xkk` | skip next opcode if `Vx != kk`                                                                                                                        |
-| `5xy0` | skip next opcode if `Vx == Vy`                                                                                                                        |
-| `6xkk` | set `Vx` to `kk`                                                                                                                                      |
-| `7xkk` | add `kk` to `Vx` (no flag is set on overflow)                                                                                                         |
-| `8xy0` | set `Vx` to the value of `Vy`                                                                                                                         |
-| `8xy1` | set `Vx` to the result of bitwise `Vx OR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                               |
-| `8xy2` | set `Vx` to the result of bitwise `Vx AND Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
-| `8xy3`* | set `Vx` to the result of bitwise `Vx XOR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
-| `8xy4` | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
-| `8xy5` | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
-| `8xy6`* | set `Vx` to `Vy` and shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                            |
-| `8xy7`* | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
-| `8xyE`* | set `Vx` to `Vy` and shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                             |
-| `9xy0` | skip next opcode if `Vx != Vy`                                                                                                                        |
-| `Ammm` | set `I` to `mmm`                                                                                                                                      |
-| `Bmmm` | jump to address `mmm + V0`                                                                                                                            |
-| `Cxkk` | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
-| `Dxyn` | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
-| `Ex9E` | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                        |
-| `ExA1` | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                    |
-| `Fx07` | set `Vx` to the current value of the delay timer                                                                                                      |
-| `Fx0A` | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
-| `Fx15` | set delay timer to `Vx`                                                                                                                               |
-| `Fx18` | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                      |
-| `Fx1E` | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                             |
-| `Fx29` | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                |
-| `Fx33` | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                         |
-| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x+1`                                                        |
-| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x+1`                                             |
+| Opcode             | Description                                                                                                                                           |
+|--------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `00E0`             | clears the screen                                                                                                                                     |
+| `00EE`             | return from subroutine to address pulled from stack                                                                                                   |
+| `0mmm`             | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                           |
+| `1mmm`             | jump to address `mmm`                                                                                                                                 |
+| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                   |                                       
+| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                        |
+| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                        |
+| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                        |
+| `6xkk`             | set `Vx` to `kk`                                                                                                                                      |
+| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                         |
+| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                         |
+| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                               |
+| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
+| `8xy3`<sup>*</sup> | set `Vx` to the result of bitwise `Vx XOR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
+| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
+| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
+| `8xy6`<sup>*</sup> | set `Vx` to `Vy` and shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                            |
+| `8xy7`<sup>*</sup> | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
+| `8xyE`<sup>*</sup> | set `Vx` to `Vy` and shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                             |
+| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                        |
+| `Ammm`             | set `I` to `mmm`                                                                                                                                      |
+| `Bmmm`             | jump to address `mmm + V0`                                                                                                                            |
+| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
+| `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                        |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                    |
+| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                      |
+| `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
+| `Fx15`             | set delay timer to `Vx`                                                                                                                               |
+| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                      |
+| `Fx1E`             | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                             |
+| `Fx29`             | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                |
+| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                         |
+| `Fx55`             | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x+1`                                                        |
+| `Fx65`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x+1`                                             |
 
-_*) The [original CHIP-8 documentation](../../resources/original-vip-chip8-documentation/#table-i---chip-8-instructions) does not list
+_<sup>*</sup>) The [original CHIP-8 documentation](../../resources/original-vip-chip8-documentation/#table-i---chip-8-instructions) does not list
 `8xy3`, `8xy6`, `8xy7`, and `8xyE` but still supports them. This is also the reason why e.g., CHIP-8 on the DREAM6800 doesn't implement them._
 
 ## Specific Notes on Opcodes
