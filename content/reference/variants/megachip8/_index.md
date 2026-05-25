@@ -13,6 +13,10 @@ weight = 40
 > This is still work in progress, I put together the information I could think of as relevant so
 > far, but I bet I missed something. Also there sure is room for improvement. Feedback is welcome.
 
+## Quick links:
+* **[Original MEGA-CHIP-8 Reference](/reference/variants/megachip8/#a-original-mega-chip-8-technical-reference)**
+* **[Modern MegaChip Reference](/reference/variants/megachip8/#b-modern-megachip-technical-reference)**
+
 # What is MEGA-CHIP-8?
 
 First of all for this to be a useful reference, I need to address the elephant in the room: What is MEGA-CHIP-8?
