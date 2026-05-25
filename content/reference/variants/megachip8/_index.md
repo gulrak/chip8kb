@@ -565,6 +565,12 @@ press a key.
 > needs a clear first, so nothing is shown on the modern MegaChip emulator
 > if the program was made for the original RS-M8001.
 
+### A.4.8 `Fx75` / `Fx85`
+
+In original MEGA-CHIP-8, the `Fx75` and `Fx85` opcodes have the same behavior as
+the `Fx55` and `Fx65` opcodes, they are just not influenced by the compatibility
+mode and never change the index register `I`.
+
 
 ----
 
