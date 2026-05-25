@@ -58,7 +58,8 @@ This attempt of making a reference for MEGA-CHIP-8 is threefold:
    and make a more powerful MEGA-CHIP-8. These are not supported by all implementations, but
    specific to some or one of them.
 
-Throughout this document, I try to use the term **MEGA-CHIP-8** when I refer to the original behavior,
+Throughout this document, I try to use the term **MEGA-CHIP-8** when I refer to the original behavior of the
+RS-M8001 by Revivial-Studios,
 and **Modern-MegaChip** when I refer to the more feature-complete and extended behavior. I use
 the term **MEGA-CHIP** (without the 8) in general, to more broadly refer to any MEGA-CHIP implementation.
 
@@ -304,9 +305,9 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 ---  
 
-## A.4 Original MegaChip-8 opcode set
+## A.4 Original MEGA-CHIP-8 opcode set
 
-The table below enumerates **every opcode** supported or documented by MegaChip-8.
+The table below enumerates **every opcode** supported or documented by MEGA-CHIP-8.
 
 | Opcode             | Description                                                                                                                                           |
 |--------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -320,10 +321,10 @@ The table below enumerates **every opcode** supported or documented by MegaChip-
 | `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                        |
 | `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                  |
 | `04kk`             | set sprite height to `kk` (not used for font sprites)                                                                                                 |
-| `05nn`             | set screen alpha to `kk` (documented but not implemented in original MegaChip-8)                                                                      |
-| `060n`             | play digitized sound at I `n`=loop/noloop (looping flag documented but ignored in original MegaChip-8)                                                |
+| `05nn`             | set screen alpha to `kk` (documented but not implemented in original MEGA-CHIP-8)                                                                     |
+| `060n`             | play digitized sound at I `n`=loop/noloop (looping flag documented but ignored in original MEGA-CHIP-8)                                               |
 | `0700`             | stop digitized sound                                                                                                                                  |
-| `080n`             | set sprite blend mode (0=normal,1=25%,2=50%,3=75%,4=additive,5=multiply, documented but ignored in original MegaChip-8)                               |
+| `080n`             | set sprite blend mode (0=normal,1=25%,2=50%,3=75%,4=additive,5=multiply, documented but ignored in original MEGA-CHIP-8)                              |
 | `09kk`             | set collision color to index `kk`                                                                                                                     |
 | `0mmm`             | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                           |
 | `1mmm`             | jump to address `mmm`                                                                                                                                 |
@@ -347,14 +348,15 @@ The table below enumerates **every opcode** supported or documented by MegaChip-
 | `Bmmm`             | jump to address `mmm + V0`                                                                                                                            |
 | `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
 | `Dxyn`<sup>*</sup> | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                        |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                    |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                          |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed, OOB key array access happens if the value is >15, no masking                      |
 | `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                      |
 | `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
 | `Fx15`             | set delay timer to `Vx`                                                                                                                               |
 | `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                      |
 | `Fx1E`             | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                             |
 | `Fx29`             | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                |
+| `Fx30`             | set `I` to the `10` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                               |
 | `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                         |
 | `Fx55`<sup>*</sup> | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                 |
 | `Fx65`<sup>*</sup> | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                      |
@@ -363,7 +365,7 @@ The table below enumerates **every opcode** supported or documented by MegaChip-
 
 > [!NOTE]
 > <sup>*</sup>) The original MegaChip implementation supports an optional "compatibility mode" that
-> allows to run CHIP-8 programs on MegaChip-8. If enabled it basically switches the following quirks
+> allows to run CHIP-8 programs on MEGA-CHIP-8. If enabled it basically switches the following quirks
 > to original CHIP-8 behavior:
 > * `8xy6` and `8xyE` copy the value of `Vy` into `Vx` before the operation
 > * `Fx55` and `Fx65` increment `I` by `x+1` instead of not changing `I`
@@ -373,9 +375,9 @@ The table below enumerates **every opcode** supported or documented by MegaChip-
 
 Some opcodes have some strange behavior or side effects that can be important to
 understand, when writing software for MegaChip that should support the original
-MegaChip-8 interpreter. It might also be useful when implementing a MegaChip
+MEGA-CHIP-8 interpreter. It might also be useful when implementing a MegaChip
 emulator/interpreter. The observed details where researched partly using the
-original MegaChip-8 interpreter's code and making a behavior replicating implementation
+original MEGA-CHIP-8 interpreter's code and making a behavior replicating implementation
 of the original interpreter.
 
 ### A.4.1 Mode changes: `0010`/`0011`/`00FE`/`00FF`
@@ -548,7 +550,13 @@ The `080n` blend mode and `05kk` alpha/fade opcodes are documented,
 but the recovered draw routine for Dxyn itself performs a direct framebuffer
 write for nonzero pixels. No blending or alpha is supported.
 
-### A.4.6 Waiting for a Key with `Fx0A` in MegaChip mode
+### A.4.6 Key handling with `Ex9E` and `ExA1`
+
+The ocpodes work as expected for any value in `Vx` as long as it is below 16.
+The original interpreter does not check for the key array bounds, and does not
+mask the value, so key numbers 16 and beyond lead to undefined behavior.
+
+### A.4.7 Waiting for a Key with `Fx0A` in MegaChip mode
 
 Due to the fact that MegaChip mode updates the screen content on `00E0`
 using Fx0A will not show any draws done between the last `00E0` and the
@@ -558,7 +566,7 @@ with `00E0` to force an update, and then use Fx0A to wait for the user to
 press a key.
 
 > [!WARNING]
-> **Modern MegaChip:** Modern implementations follow the lead from _Mega-8_ and update the
+> **Modern-MegaChip:** Modern implementations follow the lead from _Mega-8_ and update the
 > screen on `Fx0A`. This leads to an incompatibility, as the original
 > needs a clear first, so nothing is shown on the modern MegaChip emulator
 > if the program was made for the original RS-M8001.
