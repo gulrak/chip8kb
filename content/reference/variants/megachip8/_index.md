@@ -369,9 +369,16 @@ The table below enumerates **every opcode** supported or documented by MegaChip-
 > * `Fx55` and `Fx65` increment `I` by `x+1` instead of not changing `I`
 > * `Dxyn` in non-MegaChip mode ends the frame (basically display wait)
 
-## Specific Notes on Opcodes
+### A.4.0 Specific Notes on Opcodes
 
-### Mode changes: `0010`/`0011`/`00FE`/`00FF`
+Some opcodes have some strange behavior or side effects that can be important to
+understand, when writing software for MegaChip that should support the original
+MegaChip-8 interpreter. It might also be useful when implementing a MegaChip
+emulator/interpreter. The observed details where researched partly using the
+original MegaChip-8 interpreter's code and making a behavior replicating implementation
+of the original interpreter.
+
+### A.4.1 Mode changes: `0010`/`0011`/`00FE`/`00FF`
 
 The original interpreter has some "issues" regarding the clean separation of the SuperCHIP mode
 and the MegaChip mode.
@@ -409,7 +416,7 @@ Some consequences:
   framebuffer size. Scrolling after switching on the MegaChip mode is heavily
   OOB-writing and a good way to crash the emulator.
 
-### Loading a Palette with `02kk`
+### A.4.2 Loading a Palette with `02kk`
 
 The `02kk` loads a color list into the MegaChip palette. The operand is the
 number of colors to load. Each color is stored as four bytes in memory:
@@ -427,7 +434,7 @@ loading the palette.
 > zero/black. Just usint `0200` while not loading any palette, will be
 > enough to enforce the opaque white color at index 255.
 
-### Drawing `Dxy0` in non-MegaChip mode
+### A.4.3 Drawing `Dxy0` in non-MegaChip mode
 
 In non-MegaChip mode, Dxy0 is only a drawing instruction while SCHIP extended
 mode is active.
@@ -466,13 +473,13 @@ Horizontal handling does not clip. The origin is wrapped to 0..127,
 but the 16-pixel row is continuing in the pixels left, one line below, so
 neither clipping nor real wrapping happens.
 
-### Drawing `Dxyn` in non-MegaChip mode
+### A.4.4 Drawing `Dxyn` in non-MegaChip mode
 
 Horizontal handling does not clip. The origin is wrapped to 0..127,
 but the 16-pixel row is continuing in the pixels left, one line below, so
 neither clipping nor real wrapping happens.
 
-### Drawing `Dxyn` in MegaChip mode
+### A.4.5 Drawing `Dxyn` in MegaChip mode
 
 When MegaChip mode is enabled with 0011, the Dxyn instruction no longer uses 
 the normal CHIP-8/SCHIP 1-bit XOR sprite path. Instead, it draws into the 
@@ -541,7 +548,7 @@ The `080n` blend mode and `05kk` alpha/fade opcodes are documented,
 but the recovered draw routine for Dxyn itself performs a direct framebuffer
 write for nonzero pixels. No blending or alpha is supported.
 
-### Waiting for a Key with `Fx0A` in MegaChip mode
+### A.4.6 Waiting for a Key with `Fx0A` in MegaChip mode
 
 Due to the fact that MegaChip mode updates the screen content on `00E0`
 using Fx0A will not show any draws done between the last `00E0` and the
