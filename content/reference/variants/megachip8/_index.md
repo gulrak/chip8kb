@@ -422,8 +422,8 @@ Palette loading starts at entry 1, not entry 0, so color 0 is always
 transparent black. Also color 255 is forced to be opaque white after
 loading the palette.
 
-> [!NOTE]
-> If no palette load has occurred since reset, entry 255 may still be
+> [!WARNING]
+> **RS-M8001:** If no palette load has occurred since reset, entry 255 may still be
 > zero/black. Just usint `0200` while not loading any palette, will be
 > enough to enforce the opaque white color at index 255.
 
@@ -528,11 +528,11 @@ Since palette entry 255 is forced to white after any `02kk` palette-load
 instruction, these font sprites normally appear white.
 
 > [!WARNING]
-> If no palette load has occurred since reset, entry 255 may still be
+> **RS-M8001:** If no palette load has occurred since reset, entry 255 may still be
 > zero/black.
 
 > [!WARNING]
-> The "font" flag is reset by the `Dxyn` instruction, so subsequent `Dxyn`
+> **RS-M8001:** The "font" flag is reset by the `Dxyn` instruction, so subsequent `Dxyn`
 > calls will draw a MegaChip color sprite with index register `I` pointing
 > to the font sprite offset plus 0x200 (so for `Fx29` it is `Vx*5+0x200`
 > and for `Fx30` it is `Vx*10+0x250`)
@@ -551,7 +551,7 @@ with `00E0` to force an update, and then use Fx0A to wait for the user to
 press a key.
 
 > [!WARNING]
-> Modern implementations follow the lead from _Mega-8_ and update the
+> **Modern MegaChip:** Modern implementations follow the lead from _Mega-8_ and update the
 > screen on `Fx0A`. This leads to an incompatibility, as the original
 > needs a clear first, so nothing is shown on the modern MegaChip emulator
 > if the program was made for the original RS-M8001.
