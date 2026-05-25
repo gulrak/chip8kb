@@ -276,7 +276,7 @@ globals. Mixing SCHIP hires opcodes with MegaChip mode can produce inconsistent
 states. In particular, SCHIP scroll opcodes operate on the old 1bpp buffer, 
 not the MegaChip framebuffer.
 
-### A.3 Instruction Format
+## A.3 Instruction Format
 
 * Most instructions are **16 bit (2 bytes)**, stored big‑endian (`high byte` first).
   There is an additional long index load instruction (`01mm mmmm`) that is used to load the index register with an address beyond the 12bit range.
@@ -304,7 +304,7 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 ---  
 
-# 4. Original CHIP‑8 Opcode Set
+## A.4 Original MegaChip-8 opcode set
 
 The table below enumerates **every opcode** supported or documented by MegaChip-8.
 
