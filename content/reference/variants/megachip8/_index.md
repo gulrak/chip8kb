@@ -129,8 +129,8 @@ The MEGA-CHIP-8 VM/interpreter has the following state:
 |--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `V0...VF`          | array of 16 `uint8`      | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.                           |
 | `I`                | `uint32` (24 bit used)   | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                                         |
-| `DT`               | `uint8`                  | Delay timer; decremented at 60 Hz while non-zero.                                                                                                                                                                               |
-| `ST`               | `uint8`                  | Sound timer; decremented at 60 Hz while non-zero; a beep is produced while `ST > 0`.                                                                                                                                            |
+| `DT`               | `uint8`                  | Delay timer; decremented at 50 Hz while non-zero.                                                                                                                                                                               |
+| `ST`               | `uint8`                  | Sound timer; decremented at 50 Hz while non-zero; a beep is produced while `ST > 0`.                                                                                                                                            |
 | `PC`<sup>1</sup>   | `uint16`                 | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further. (Sometimes described as “12-bit”, but it’s actually 16-bit—just not all values are safe/meaningful.) |
 | `SP`<sup>1</sup>   | `uint16`                 | Stack pointer; points to the top of the call stack.                                                                                                                                                                             |
 | `stack`            | array of 16 `uint16`     | Call stack storage, commonly modeled as an array with at least 16 entries (a conventional choice, not from the original implementation).                                                                                        |
@@ -210,20 +210,14 @@ pixel value: palette index
 only when the frame is presented, using the current MegaChip palette. Changing
 the palette after drawing changes the displayed colors of already-drawn pixels.
 
-#### Palette
+#### A.2.5.1 Palette
 
-`02nn` loads `nn` palette entries from memory at `I`.
-
-```
-each color: A R G B
-palette[i + 1] = read32(I + i * 4)
-palette[255] = white
-```
+`02nn` loads `nn` palette entries from memory pointed to by index register `I`.
 
 Entry `0` is not loaded by `02nn`; entry `255` is forced to white after every
 palette load. Usable programmable entries are effectively `1..254`.
 
-#### Sprites
+#### A.2.5.2 Sprites
 
 `03nn` sets MegaChip sprite width. `04nn` sets MegaChip sprite height.
 
@@ -243,7 +237,7 @@ In MegaChip mode, normal `Dxyn` ignores `n` and draws a `width * height`
 Drawing in MegaChip mode is _direct replacement_, not XOR. Coordinates are
 not wrapped; pixels outside `0..255, 0..191` are clipped/skipped.
 
-#### Collision
+#### A.2.5.3 Collision
 
 `09nn` sets the MegaChip collision color index. `Dxyn` clears `VF`, then 
 sets it if a drawn nonzero source pixel replaces a destination pixel equal 
@@ -254,13 +248,13 @@ if dst == collision_color and src != collision_color:
     VF = 1
 ```
 
-#### Font Drawing
+#### A.2.5.4 Font Drawing
 
 After `Fx29` or `Fx30`, the next `Dxyn` in MegaChip mode draws from the 
-built-in font table instead of memory. Set font bits write palette index
-`255`, normally white.
+built-in font table instead of memory. Set font bits are drawn with palette index
+`255`, in white.
 
-```text
+```
 width  = 8
 height = n
 color  = 255
@@ -270,7 +264,7 @@ This source choice is controlled by a temporary font flag. `Dxyn` clears
 the flag afterward, so a second `Dxyn` requires another `Fx29` or `Fx30` 
 to draw a font sprite again.
 
-#### Mode Mixing Warning
+#### A.2.5.5 Mode Mixing Warning
 
 `00FE`/`00FF` and `0010`/`0011` change different flags but share screen-size 
 globals. Mixing SCHIP hires opcodes with MegaChip mode can produce inconsistent 
@@ -305,7 +299,7 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 ---  
 
-## A.4 Original MEGA-CHIP-8 opcode set
+## A.4 Original MEGA-CHIP-8 Opcode Set
 
 The table below enumerates **every opcode** supported or documented by MEGA-CHIP-8.
 
@@ -578,11 +572,292 @@ press a key.
 
 ## B.1. Overview
 
+As one can see from the section about the original RS-M8001 MEGA-CHIP-8 implementation,
+there are a bunch of really quirky details and unimplemented features in it.
+But the SDK documentation, though compact and lacking detail, makes one wonder
+what a fully functional MegaChip implementation might have looked like.
+
+When we tried to understand MegaChip and implement it into our emulators,
+we started to fill in the gaps. A major contributor to what modern MegaChip
+would be sure is [Mega-8](https://github.com/Ready4Next/Mega8). With the
+MegaTestDemo and the implementation by Mega-8, a first MegaChip emulator
+already existed that supported blending. So its implementation of the
+MegaChip blending and the features used in the demo were the base. From there
+we explored how to support the MegaTechDemo in our own implementations
+and semi-agreed on a set of features that modern MegaChip should support.
+
 ## B.2. Virtual Machine Model
 
 ### B.2.1 State
 
+For the definition of the state, the following table uses the types:
+
+* `uint8` = 8-bit unsigned integer
+* `uint16` = 16-bit unsigned integer
+
+Choose the types that match this best for your chosen language.
+
+The modern MegaChip VM/interpreter has the following state:
+
+| Name               | Type                      | Description                                                                                                                                                                                                                     |
+|--------------------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `V0...VF`          | array of 16 `uint8`       | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.                           |
+| `I`                | `uint32` (24 bit used)    | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                                         |
+| `DT`               | `uint8`                   | Delay timer; decremented at 50 Hz while non-zero.                                                                                                                                                                               |
+| `ST`               | `uint8`                   | Sound timer; decremented at 50 Hz while non-zero; a beep is produced while `ST > 0`.                                                                                                                                            |
+| `PC`<sup>1</sup>   | `uint16`                  | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further. (Sometimes described as “12-bit”, but it’s actually 16-bit—just not all values are safe/meaningful.) |
+| `SP`<sup>1</sup>   | `uint16`                  | Stack pointer; points to the top of the call stack.                                                                                                                                                                             |
+| `stack`            | array of 16 `uint16`      | Call stack storage, commonly modeled as an array with at least 16 entries (a conventional choice, not from the original implementation).                                                                                        |
+| `ram`              | array of 16777216 `uint8` | Main memory: 16 MB of RAM, organized in bytes.                                                                                                                                                                                  |
+| graphics           | -                         | see under graphics, too complicated for the table :wink:                                                                                                                                                                        | 
+
+<sup>1)</sup>  Stack pointer `SP` and program counter `PC` are internal registers of the interpreter, and in-accessible to
+a modern MegaChip program. The model suggested here is the most common approach to implement them, but stack could
+also be a stack-container if the chosen language offers one, and in that case the stack pointer would be omitted
+(it's the size of the container). The program counter could also be a pointer into the ram or an iterator.
+However, in that case common protection mechanisms against out-of-bounds access, like using masking to ensure
+the valid range, would need to be implemented using range checks. It also makes it harder to generate trace logs
+that are comparable to existing trace logs, so one should be aware of this, when not using the standard approach.
+
 ### B.2.2 Memory Layout
+
+Modern MegaChip supports 16MB of ram. The normal CHIP-8 font is places at offset 0x0000.
+The 10 lines high big font introduced by SCHIP is placed at offset 0x0050. This is not
+a hard requirement but a common recommendation.
+
+Neither stack nor the screen are inside that reachable ram.
+
+As in all CHIP-8 variants of the knowledge base, the execution range of the program is limited to `0xFFF`, as
+all instructions allowing to influence the program counter are limited to 12 bit parameters.
+
+### B.2.3 Timers
+
+* Both timers are **unsigned 8‑bit counters**.
+* When set to a non‑zero value they decrement automatically at originally **50 Hz**, synced to the screen updates
+* Some modern implementations use 60 Hz instead of 50 Hz.
+
+### B.2.4 Sound
+
+Modern MegaChip still has support for the buzzer sound of CHIP-8/SUPER-CHIP. Buzzing is active while `ST > 0`, and as
+implementor of a CHIP-8 interpreter you can freely decide on a pitch or waveform to your liking.
+Be aware to decrement the timers ideally at the start of the video frame and not right after the opcode execution
+of a frame, as then the delay or buzzing will be shorter by one frame. Delays or beeps of length 1 will
+even have no effect, and setting delay to 1 is a very common pattern to pace a game.
+
+The main new feature is a mono 8-bit sample playback. The audio is represented by unsigned 8-bit samples
+that need the following memory layout:
+
+| Offset | Size | Description                                           |
+|--------|------|-------------------------------------------------------|
+| `0`    | `2`  | Sample playback frequency (big endian)                |
+| `2`    | `3`  | Sample length as 24 bit unsigned integer (big endian) |
+| `5`    | `1`  | A reserved padding byte (typically 0)                 |
+| `6`    | `n`  | Sample data (sample length bytes)                     |
+
+Sample playback is triggered by the opcode `060n` and stopped by the
+opcode `0700`. The parameter `n` of the opcode `060n`, that is ignored
+original MEGA-CHIP-8, is used to signal a one-shot playback. To stay
+compatible with the original and Mega-8, a value of 0 signals a looped
+playback, so the sample run and loop until stopped by `0700`. A value of 1
+signals a one-shot playback, where the playback stops when the end of
+the sample is reached.
+
+### A.2.5 Graphics
+
+MegaChip contains CHIP-8/SCHIP-compatible graphics, so as long as the program
+stays outside of MegaChip mode, drawing follows the normal CHIP-8/SCHIP
+[drawing rules](/reference/variants/classic-chip-8/#25-graphics) using a 1bpp framebuffer.
+
+MegaChip mode is enabled with `0011` and disabled with `0010`. When enabled,
+drawing switches from the packed 1bpp CHIP-8/SCHIP framebuffer to a 256x192
+resolution. In contrast to the original MEGA-CHIP-8 implementation, to support
+blending and the "scrolling feature" introduced by Mega-8, a set of multiple
+buffers is needed:
+
+* Collision-Buffer: A framebuffer: 256 * 192 bytes, pixel value: palette index
+* Back-Buffer: Used for the current ongoing sprite draing: 256 * 192, pixel value: RGBA8 color (actual channel order is implementation defined)
+* Front-Buffer: `00E0` pushes the back-buffer here for presentation: 256 * 192, pixel value: RGBA8 color (actual channel order is implementation defined)
+* A display texture used to draw the actual screen content in the emulators UI, 256 * 192 pixels, whatever your screen format is.
+
+`Dxyn` writes palette indices into this framebuffer. It also writes the
+RGBA from the palette of the corresponding pixels. During this drawing the
+blend mode is in effect. The following blend modes (set by `080n`) are supported:
+
+* 0=normal, ist all original MEGACHIP-8 supports, just overwrite the framebuffer value with the color of the new pixel
+* 1=25%, blend 25% of the sprite pixel color with 75% of the framebuffer color
+* 2=50%, blend 50% of the sprite pixel color with 50% of the framebuffer color
+* 3=75%, blend 75% of the sprite pixel color with 25% of the framebuffer color
+* 4=additive, add the channels of the sprite pixel to those of the framebuffer color, clamping at 255
+* 5=multiply, multiply the channels of the sprite pixel with those of the framebuffer color, clamping at 255
+
+Changing the palette after drawing, does not change the displayed colors of already-drawn pixels,
+contrary to the original MEGA-CHIP-8 implementation.
+
+The normal display Process is that each `00E0` (or timeout of the frame, if the
+ipf is reached) pushes the back-buffer content into front-buffer (you can also
+swap them and clear the then new baclk-buffer, the actual solution is up to you).
+The front-buffer is then translated into the display texture and displayed in
+the emulators UI. The reason for the two buffers is to implement the "scrolling
+feature" introduced by Mega-8.
+
+#### B.2.5.1 Scrolling in MegaChip mode
+
+Mega-8 introduced a "scrolling feature" that uses the regular scrolling opcodes 
+(`00Bn`, `00Cn`, `00FB`, `00FC`) to scroll the _front-buffer_ (the framebuffer
+that was pushed/swapped last) by the given amount or 4 pixels (in case of `00FB`
+and `00FC`). Then the display texture is updated by merging the _front-buffer_
+with the _back-buffer_ wherever the _front-buffer_ is transparent. This merge
+is then displayed.
+
+#### B.2.5.2 Palette
+
+`02nn` loads `nn` palette entries from memory pointed to by index register `I`.
+
+Entry `0` is not loaded by `02nn`; entry `255` is forced to white after every
+palette load. Usable programmable entries are effectively `1..254`.
+
+Contrary to the original MEGA-CHIP-8 implementation, entry `255` is recommended
+to be initialized white on reset. Entry `0` is always black transparent.
+
+#### B.2.5.3 Sprites
+
+`03nn` sets MegaChip sprite width. `04nn` sets MegaChip sprite height.
+
+```
+03nn: sprite width  = nn, or 256 if nn == 0
+04nn: sprite height = nn, or 256 if nn == 0
+```
+
+In MegaChip mode, normal `Dxyn` ignores `n` and draws a `width * height`
+8bpp sprite from memory at `I`.
+
+```
+0      transparent
+1..255 drawn as palette index
+```
+
+Drawing in MegaChip mode is _direct replacement_, not XOR. Coordinates are
+not wrapped; pixels outside `0..255, 0..191` are clipped/skipped.
+
+#### B.2.5.4 Collision
+
+`09nn` sets the MegaChip collision color index. `Dxyn` clears `VF`, then
+sets it if a drawn nonzero source pixel replaces a destination pixel equal
+to the collision color, provided the source pixel is not also the collision color.
+
+```
+if dst == collision_color and src != collision_color:
+    VF = 1
+```
+
+#### B.2.5.5 Font Drawing
+
+After `Fx29` or `Fx30`, the next `Dxyn` in MegaChip mode, `Dxyn` draws from the
+font address. Set font bits are drawn with palette index `255`, white.
+
+```
+width  = 8
+height = n
+color  = 255
+```
+
+The recommendation is for this source choice to be controlled by the sprite 
+address being below 0x100, instead of a volatile flag, still it is recommended 
+to use `Fx29` or `Fx30` again for each font digit, even if it is the same, 
+to be compatible to flag based implementations.
+
+#### A.2.5.6 Mode Mixing Warning
+
+Due to the issues with mixing modes in the original implementation, it is
+strongly suggested to not enable MegaChip mode when in hires SCHIP mode, 
+and to not enable hires SCHIP mode when in MegaChip mode. As long as the
+modes are used independently, all should be good.
+
+## B.3 Instruction Format
+
+* Most instructions are **16 bit (2 bytes)**, stored big‑endian (`high byte` first).
+  There is an additional long index load instruction (`01mm mmmm`) that is used to load the index register with an address beyond the 12bit range.
+* The original SDK documentation describes that there needs to be a NOP after that
+  long index load, but that is not really correctly describing what is going on:
+  The NOP is an artifact of the assembler being patched in a way that still supports
+  only 16 bit opcodes, and so it uses the space of the NOP instruction to fill with the
+  remaining 16 bit of the address. Modern Assemblers like the Octo derived
+  Chiplet do not have this restriction, only the Windows-only SDK assembler has.
+* The most significant nibble can still be used to derive the primary opcode class; the remaining nibbles supply operands or
+  further opcode distinction.
+
+For this reference the naming convention is following the one used in the
+[original CHIP-8 documentation](../../resources/original-vip-chip8-documentation/#table-i---chip-8-instructions),
+but using lowercase letters for better distinction from the opcode defining nibbles:
+
+| Symbol   | Meaning                |
+|----------|------------------------|
+| `n`      | 4‑bit value (0–F)      |
+| `kk`     | 8‑bit immediate        |
+| `mmm`    | 12‑bit address         |
+| `x`, `y` | Register indices (0–F) |
+
+After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-instructions modify it explicitly.
+
+---  
+
+## B.4 Modern MegaChip Opcode Set
+
+The table below enumerates **every opcode** supported or documented by MEGA-CHIP-8.
+
+| Opcode             | Description                                                                                                                                           |
+|--------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `0010`             | disable MegaChip mode                                                                                                                                 |
+| `0011`             | enable MegaChip mode                                                                                                                                  |
+| `00Bn`             | scroll screen content up `n` pixel                                                                                                                    |
+| `00Cn`             | scroll screen content down `n` pixel                                                                                                                  |
+| `00E0`             | clears the screen                                                                                                                                     |
+| `00EE`             | return from subroutine to address pulled from stack                                                                                                   |
+| `01nn`&nbsp;`nnnn` | set `I` to `NNNNNN` (24 bit)                                                                                                                          |
+| `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                        |
+| `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                  |
+| `04kk`             | set sprite height to `kk` (not used for font sprites)                                                                                                 |
+| `05nn`             | set screen alpha to `kk`                                                                                                                              |
+| `060n`             | play digitized sound at I `n`=0:loop/1:noloop                                                                                                         |
+| `0700`             | stop digitized sound                                                                                                                                  |
+| `080n`             | set sprite blend mode (0=normal,1=25%,2=50%,3=75%,4=additive,5=multiply)                                                                              |
+| `09kk`             | set collision color to index `kk`                                                                                                                     |
+| `0mmm`             | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                           |
+| `1mmm`             | jump to address `mmm`                                                                                                                                 |
+| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                   |                                       
+| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                        |
+| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                        |
+| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                        |
+| `6xkk`             | set `Vx` to `kk`                                                                                                                                      |
+| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                         |
+| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                         |
+| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                               |
+| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
+| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
+| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
+| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
+| `8xy6`             | set `Vx` to `Vy` and shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                            |
+| `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
+| `8xyE`             | set `Vx` to `Vy` and shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                             |
+| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                        |
+| `Ammm`             | set `I` to `mmm`                                                                                                                                      |
+| `Bmmm`             | jump to address `mmm + V0`                                                                                                                            |
+| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
+| `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                          |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed, OOB key array access happens if the value is >15, no masking                      |
+| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                      |
+| `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
+| `Fx15`             | set delay timer to `Vx`                                                                                                                               |
+| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                      |
+| `Fx1E`             | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                             |
+| `Fx29`             | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                |
+| `Fx30`             | set `I` to the `10` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                               |
+| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                         |
+| `Fx55`             | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                 |
+| `Fx65`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                      |
+| `Fx75`             | store the content of the registers v0 to vX into flags storage (outside of the addressable ram), `I` is not changed                                   |
+| `Fx85`             | load the registers v0 to vX from flags storage (outside the addressable ram), `I` is not changed                                                      | 
 
 ----
 
