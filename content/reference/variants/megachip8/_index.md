@@ -10,8 +10,8 @@ weight = 40
 {{< figure src=img/megachip8-title.png >}}
 
 > [!WARNING]
-> This is still work in progress, the pages for all but CHIP-8 are still far from done, and especially this
-> one will for sure change a lot, I barely started.
+> This is still work in progress, I put together the information I could think of as relevant so
+> far, but I bet I missed something. Also there sure is room for improvement. Feedback is welcome.
 
 # What is MEGA-CHIP-8?
 
