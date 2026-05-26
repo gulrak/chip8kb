@@ -66,4 +66,3 @@ and any emulator supporting these variants is in a pretty solid shape.
   original CHIP-8 variant that started the CHIP-8 ancestry, so I plan on adding
   the needed reference material to emulate it to be able to run various historical
   CHIP-8 variant interpreters on it.
-* 

@@ -672,7 +672,7 @@ playback, so the sample run and loop until stopped by `0700`. A value of 1
 signals a one-shot playback, where the playback stops when the end of
 the sample is reached.
 
-### A.2.5 Graphics
+### B.2.5 Graphics
 
 MegaChip contains CHIP-8/SCHIP-compatible graphics, so as long as the program
 stays outside of MegaChip mode, drawing follows the normal CHIP-8/SCHIP
@@ -776,7 +776,7 @@ address being below 0x100, instead of a volatile flag, still it is recommended
 to use `Fx29` or `Fx30` again for each font digit, even if it is the same, 
 to be compatible to flag based implementations.
 
-#### A.2.5.6 Mode Mixing Warning
+#### B.2.5.6 Mode Mixing Warning
 
 Due to the issues with mixing modes in the original implementation, it is
 strongly suggested to not enable MegaChip mode when in hires SCHIP mode, 
@@ -841,17 +841,17 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 | `6xkk`             | set `Vx` to `kk`                                                                                                                                      |
 | `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                         |
 | `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                         |
-| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                               |
-| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
-| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
+| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, no `VF` reset                                                                                           |
+| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, no `VF` reset                                                                                          |
+| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, no `VF` reset                                                                                          |
 | `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
 | `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
-| `8xy6`             | set `Vx` to `Vy` and shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                            |
+| `8xy6`             | set `Vx` shift `Vx` one bit to the right, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                       |
 | `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
-| `8xyE`             | set `Vx` to `Vy` and shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                             |
+| `8xyE`             | set `Vx` shift `Vx` one bit to the left, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                        |
 | `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                        |
 | `Ammm`             | set `I` to `mmm`                                                                                                                                      |
-| `Bmmm`             | jump to address `mmm + V0`                                                                                                                            |
+| `Bxkk`             | jump to address `xkk + Vx`                                                                                                                            |
 | `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
 | `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
 | `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                          |
@@ -868,6 +868,15 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 | `Fx65`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                      |
 | `Fx75`             | store the content of the registers v0 to vX into flags storage (outside of the addressable ram), `I` is not changed                                   |
 | `Fx85`             | load the registers v0 to vX from flags storage (outside the addressable ram), `I` is not changed                                                      | 
+
+> [!NOTE]
+> This basically means the common quirks are set to
+> * No `VF` reset on `8xy1`/`8xy2`/`8xy3`
+> * Only Shift `Vx`
+> * `Fx55`/`Fx65` don't change `I`
+> * Sprites clip by default, but a wrapping quirk should be available (needed for MegaTestDemo)
+> * `Bxkk` jumps to `xkk + Vx`
+> * `Dxyn` has a display wait in non-MegaChip lores mode
 
 ----
 
