@@ -307,59 +307,59 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 The table below enumerates **every opcode** supported or documented by MEGA-CHIP-8.
 
-| Opcode             | Description                                                                                                                                           |
-|--------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `0010`             | disable MegaChip mode                                                                                                                                 |
-| `0011`             | enable MegaChip mode                                                                                                                                  |
-| `00Bn`             | scroll screen content up `n` pixel                                                                                                                    |
-| `00Cn`             | scroll screen content down `n` pixel                                                                                                                  |
-| `00E0`             | clears the screen                                                                                                                                     |
-| `00EE`             | return from subroutine to address pulled from stack                                                                                                   |
-| `01nn`&nbsp;`nnnn` | set `I` to `NNNNNN` (24 bit)                                                                                                                          |
-| `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                        |
-| `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                  |
-| `04kk`             | set sprite height to `kk` (not used for font sprites)                                                                                                 |
-| `05nn`             | set screen alpha to `kk` (documented but not implemented in original MEGA-CHIP-8)                                                                     |
-| `060n`             | play digitized sound at I `n`=loop/noloop (looping flag documented but ignored in original MEGA-CHIP-8)                                               |
-| `0700`             | stop digitized sound                                                                                                                                  |
-| `080n`             | set sprite blend mode (0=normal,1=25%,2=50%,3=75%,4=additive,5=multiply, documented but ignored in original MEGA-CHIP-8)                              |
-| `09kk`             | set collision color to index `kk`                                                                                                                     |
-| `0mmm`             | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                           |
-| `1mmm`             | jump to address `mmm`                                                                                                                                 |
-| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                   |                                       
-| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                        |
-| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                        |
-| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                        |
-| `6xkk`             | set `Vx` to `kk`                                                                                                                                      |
-| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                         |
-| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                         |
-| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                               |
-| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
-| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, set `VF` to `0`, even if `x` is `F`! (VF is written last)                                              |
-| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
-| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
-| `8xy6`<sup>*</sup> | set `Vx` to `Vy` and shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                            |
-| `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
-| `8xyE`<sup>*</sup> | set `Vx` to `Vy` and shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                             |
-| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                        |
-| `Ammm`             | set `I` to `mmm`                                                                                                                                      |
-| `Bmmm`             | jump to address `mmm + V0`                                                                                                                            |
-| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
-| `Dxyn`<sup>*</sup> | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                          |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed, OOB key array access happens if the value is >15, no masking                      |
-| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                      |
-| `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
-| `Fx15`             | set delay timer to `Vx`                                                                                                                               |
-| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                      |
-| `Fx1E`             | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                             |
-| `Fx29`             | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                |
-| `Fx30`             | set `I` to the `10` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                               |
-| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                         |
-| `Fx55`<sup>*</sup> | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                 |
-| `Fx65`<sup>*</sup> | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                      |
-| `Fx75`             | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                 |
-| `Fx85`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                      | 
+| Opcode             | Description                                                                                                                                                      |
+|--------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `0010`             | disable MegaChip mode                                                                                                                                            |
+| `0011`             | enable MegaChip mode                                                                                                                                             |
+| `00Bn`             | scroll screen content up `n` pixel                                                                                                                               |
+| `00Cn`             | scroll screen content down `n` pixel                                                                                                                             |
+| `00E0`             | clears the screen                                                                                                                                                |
+| `00EE`             | return from subroutine to address pulled from stack                                                                                                              |
+| `01nn`&nbsp;`nnnn` | set `I` to `NNNNNN` (24 bit)                                                                                                                                     |
+| `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                                   |
+| `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                             |
+| `04kk`             | set sprite height to `kk` (not used for font sprites)                                                                                                            |
+| `05nn`             | set screen alpha to `kk` (documented but not implemented in original MEGA-CHIP-8)                                                                                |
+| `060n`             | play digitized sound at I `n`=loop/noloop (looping flag documented but ignored in original MEGA-CHIP-8)                                                          |
+| `0700`             | stop digitized sound                                                                                                                                             |
+| `080n`             | set sprite blend mode (0=normal,1=25%,2=50%,3=75%,4=additive,5=multiply, documented but ignored in original MEGA-CHIP-8)                                         |
+| `09kk`             | set collision color to index `kk`                                                                                                                                |
+| `0mmm`             | jump to native CDP1802 assembler subroutine at `mmm` (typically ignored or errored out on modern emulators)                                                      |
+| `1mmm`             | jump to address `mmm`                                                                                                                                            |
+| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                              |                                       
+| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                                   |
+| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                                   |
+| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                                   |
+| `6xkk`             | set `Vx` to `kk`                                                                                                                                                 |
+| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                                    |
+| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                                    |
+| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`, no `VF` reset                                                                                                      |
+| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`, no `VF` reset                                                                                                     |
+| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, no `VF` reset                                                                                                     |
+| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                                 |
+| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                                         |
+| `8xy6`<sup>*</sup> | shift `Vx` one bit to the right, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                                                            |
+| `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)            |
+| `8xyE`<sup>*</sup> | shift `Vx` one bit to the left, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                                                             |
+| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                                   |
+| `Ammm`             | set `I` to `mmm`                                                                                                                                                 |
+| `Bxkk`             | jump to address `xkk + Vx` (broken in RS-M8001, as the code didn't take its own quirk of missing 512 byte at the start into account and jumps 512 bytes too far) |
+| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                                         |
+| `Dxyn`<sup>*</sup> | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                               |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                                     |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed, OOB key array access happens if the value is >15, no masking                                 |
+| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                                 |
+| `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                             |
+| `Fx15`             | set delay timer to `Vx`                                                                                                                                          |
+| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                                 |
+| `Fx1E`             | add `Vx` to `I`, **no overflow handling or change of `VF` happens here**!                                                                                        |
+| `Fx29`             | set `I` to the `5` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                           |
+| `Fx30`             | set `I` to the `10` line high hex graphics for the lowest nibble in `Vx` (so only lower 4 bit are used)                                                          |
+| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                                    |
+| `Fx55`<sup>*</sup> | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                            |
+| `Fx65`<sup>*</sup> | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                                 |
+| `Fx75`             | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                            |
+| `Fx85`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                                 | 
 
 > [!NOTE]
 > <sup>*</sup>) The original MegaChip implementation supports an optional "compatibility mode" that
@@ -558,10 +558,15 @@ mask the value, so key numbers 16 and beyond lead to undefined behavior.
 
 Due to the fact that MegaChip mode updates the screen content on `00E0`
 using Fx0A will not show any draws done between the last `00E0` and the
-`Fx0A` call. So on the original interpreter one needs to show whatever
+`Fx0A` call. So on the original interpreter, one needs to show whatever
 information the user should see to know what keys to press, erase the screen
 with `00E0` to force an update, and then use Fx0A to wait for the user to
 press a key.
+
+Also the original MEGA-CHIP-8 interpreter does wait inside the opcode
+handler, explicitly calling an event handling, so while input works
+in that loop, the timers are not decrementing, they stop until a key
+was released and only then continue to count down.
 
 > [!WARNING]
 > **Modern-MegaChip:** Modern implementations follow the lead from _Mega-8_ and update the
@@ -846,16 +851,16 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 | `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`, no `VF` reset                                                                                          |
 | `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                      |
 | `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                              |
-| `8xy6`             | set `Vx` shift `Vx` one bit to the right, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                       |
+| `8xy6`             | shift `Vx` one bit to the right, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                       |
 | `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last) |
-| `8xyE`             | set `Vx` shift `Vx` one bit to the left, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                        |
+| `8xyE`             | shift `Vx` one bit to the left, `Vy` is ignored, set `VF` to the bit shifted out, even if `x=F`! (VF is written last)                        |
 | `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                        |
 | `Ammm`             | set `I` to `mmm`                                                                                                                                      |
 | `Bxkk`             | jump to address `xkk + Vx`                                                                                                                            |
 | `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                              |
 | `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed                    |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed, OOB key array access happens if the value is >15, no masking                          |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed, OOB key array access happens if the value is >15, no masking                      |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                          |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                      |
 | `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                      |
 | `Fx0A`             | wait for a pressed key **to be released** and set `Vx` to its number                                                                                  |
 | `Fx15`             | set delay timer to `Vx`                                                                                                                               |
