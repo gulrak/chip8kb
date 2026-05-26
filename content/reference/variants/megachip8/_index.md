@@ -434,7 +434,24 @@ loading the palette.
 > zero/black. Just usint `0200` while not loading any palette, will be
 > enough to enforce the opaque white color at index 255.
 
-### A.4.3 Drawing `Dxy0` in non-MegaChip mode
+### A.4.3 Setting the index register with `Ammm` and `01nn nnnn`, `Fx29` and `Fx30`
+
+The fact that the original MEGA-CHIP-8 does not emulate the ram below
+`0x200` leads to some special handling related to the index register.
+Setting it to a font sprite with `Fx29` or `Fx30` will set a font flag
+that triggers the special `Dxyn` behavior. The same happens when setting
+the index register with `Ammm` to an address below `0x100`. It does not
+happen with `01nn nnnn` when setting an address below `0x100`. So after
+that `Dxyn` will not draw in font mode. Also changing the index register
+with `Fx1E` will not change the font flag.
+
+Additionally any address between `0x100..0x1ff` set with `Ammm` and any
+address below `0x200` set with `01nn nnnn` will lead to the index register
+pointing to sone OOB internal data structures of the emulator. Not to actual
+MegaChip memory. Writing to that via `Fx33` or `Fx55` or `Fx75` can have
+bad consequences and leads to undefined behavior.
+
+### A.4.4 Drawing `Dxy0` in non-MegaChip mode
 
 In non-MegaChip mode, Dxy0 is only a drawing instruction while SCHIP extended
 mode is active.
@@ -473,13 +490,13 @@ Horizontal handling does not clip. The origin is wrapped to 0..127,
 but the 16-pixel row is continuing in the pixels left, one line below, so
 neither clipping nor real wrapping happens.
 
-### A.4.4 Drawing `Dxyn` in non-MegaChip mode
+### A.4.5 Drawing `Dxyn` in non-MegaChip mode
 
 Horizontal handling does not clip. The origin is wrapped to 0..127,
 but the 16-pixel row is continuing in the pixels left, one line below, so
 neither clipping nor real wrapping happens.
 
-### A.4.5 Drawing `Dxyn` in MegaChip mode
+### A.4.6 Drawing `Dxyn` in MegaChip mode
 
 When MegaChip mode is enabled with 0011, the Dxyn instruction no longer uses 
 the normal CHIP-8/SCHIP 1-bit XOR sprite path. Instead, it draws into the 
@@ -548,13 +565,13 @@ The `080n` blend mode and `05kk` alpha/fade opcodes are documented,
 but the recovered draw routine for Dxyn itself performs a direct framebuffer
 write for nonzero pixels. No blending or alpha is supported.
 
-### A.4.6 Key handling with `Ex9E` and `ExA1`
+### A.4.7 Key handling with `Ex9E` and `ExA1`
 
 The ocpodes work as expected for any value in `Vx` as long as it is below 16.
 The original interpreter does not check for the key array bounds, and does not
 mask the value, so key numbers 16 and beyond lead to undefined behavior.
 
-### A.4.7 Waiting for a Key with `Fx0A` in MegaChip mode
+### A.4.8 Waiting for a Key with `Fx0A` in MegaChip mode
 
 Due to the fact that MegaChip mode updates the screen content on `00E0`
 using Fx0A will not show any draws done between the last `00E0` and the
@@ -574,7 +591,7 @@ was released and only then continue to count down.
 > needs a clear first, so nothing is shown on the modern MegaChip emulator
 > if the program was made for the original RS-M8001.
 
-### A.4.8 `Fx75` / `Fx85`
+### A.4.9 `Fx75` / `Fx85`
 
 In original MEGA-CHIP-8, the `Fx75` and `Fx85` opcodes have the same behavior as
 the `Fx55` and `Fx65` opcodes, they are just not influenced by the compatibility
