@@ -47,13 +47,23 @@ to write about them:
 
 * [Variant Overview](variants) (A CHIP-8 ancestry overview and links to the individual variants)
 * [Classic CHIP-8](variants/classic-chip-8) (in this case the classic initial/original behavior)
-* CHIP-48 (initial version of CHIP-8 on HP-48 family calculators)
-* SUPER-CHIP (all versions, with comments about the accidently released version)
-* MEGACHIP (with comments on the original incomplete implementation and derived works)
-* XO-CHIP (with comments on Octo where relevant)
+* [CHIP-48](variants/chip-48) (initial version of CHIP-8 on HP-48 family calculators)
+* [SUPER-CHIP](variants/superchip) (all versions, with comments about the accidently released version)
+* [MEGACHIP](variants/megachip8) (with comments on the original incomplete implementation and derived works)
+* [XO-CHIP](variants/xo-chip) (with comments on Octo where relevant)
 
 There are dozens of variants out there. Some of them very exotic. A good overview of these and many more variants are on Tobias V. I. Langhoff's
 excellent [⎋ CHIP-8 extensions and compatibility](https://chip-8.github.io/extensions/) pages. 
 
-I will add more variants to the documentation (expect CHIP-8X), but I needed to start somewhere,
+I will add more variants to the documentation, but I needed to start somewhere,
 and any emulator supporting these variants is in a pretty solid shape.
+
+## Planned Documentation
+
+* CHIP-8X - The CHIP-8X variant is a variant of the classic CHIP-8 made for
+  an extended COSMAC VIP, oficially released by RCA, and the first CHIP-8 with colors.
+* COSMAC VIP - While not a CHIP-8 variant in itself, the COSMAC VIP came with the
+  original CHIP-8 variant that started the CHIP-8 ancestry, so I plan on adding
+  the needed reference material to emulate it to be able to run various historical
+  CHIP-8 variant interpreters on it.
+* 
