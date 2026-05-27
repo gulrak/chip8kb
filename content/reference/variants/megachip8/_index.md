@@ -317,6 +317,9 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 | `00Cn`             | scroll screen content down `n` pixel                                                                                                                             |
 | `00E0`             | clears the screen                                                                                                                                                |
 | `00EE`             | return from subroutine to address pulled from stack                                                                                                              |
+| `00FB`             | scroll screen content right by four pixels                                                                                                                       |
+| `00FC`             | scroll screen content left by four pixels                                                                                                                        |
+| `00FD`             | exit the interpreter                                                                                                                                             |
 | `01nn`&nbsp;`nnnn` | set `I` to `NNNNNN` (24 bit)                                                                                                                                     |
 | `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                                   |
 | `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                             |
@@ -703,18 +706,51 @@ the sample is reached.
 
 ### B.2.5 Graphics
 
-MegaChip contains CHIP-8/SCHIP-compatible graphics, so as long as the program
-stays outside of MegaChip mode, drawing follows the normal CHIP-8/SCHIP
-[drawing rules](/reference/variants/classic-chip-8/#25-graphics) using a 1bpp framebuffer.
+Modern MegaChip contains two mostly independent graphics paths. As long as the program
+stays outside of MegaChip mode, it uses a modern SCHIP-like 1bpp framebuffer. When
+MegaChip mode is enabled, drawing switches to the 256×192 indexed-color MegaChip
+framebuffer.
+
+#### B.2.5.1 Non-MegaChip Mode
+
+When MegaChip mode is disabled, graphics are monochrome and use the modern SCHIP
+behavior. The screen can be in lores or hires mode:
+
+| Property     | Lores Mode              | Hires Mode               |
+|--------------|-------------------------|--------------------------|
+| Resolution   | **64×32** pixels        | **128×64** pixels        |
+| Color depth  | 1bpp, pixel on/off      | 1bpp, pixel on/off       |
+| Drawing mode | XOR                     | XOR                      |
+
+`00FE` disables hires mode and switches to lores, `00FF` enables hires mode. Both
+mode changes clear the screen.
+
+`Dxyn` draws an 8×n sprite from memory at `I`. Drawing is XORed into the framebuffer,
+and `VF` is set to `1` if any drawn pixel changes from set to unset. If that never
+happens, `VF` is set to `0`.
+
+`Dxy0` always draws a 16×16 sprite, independent of the current resolution. The
+sprite consumes 32 bytes, stored as two bytes per row for 16 rows.
+
+Scrolling uses logical pixels of the current resolution:
+
+* `00Bn` scrolls the screen up by `n` pixels.
+* `00Cn` scrolls the screen down by `n` pixels.
+* `00FB` scrolls the screen right by four pixels.
+* `00FC` scrolls the screen left by four pixels.
+
+There is no display wait in non-MegaChip mode.
+
+#### B.2.5.2 MegaChip Mode
 
 MegaChip mode is enabled with `0011` and disabled with `0010`. When enabled,
-drawing switches from the packed 1bpp CHIP-8/SCHIP framebuffer to a 256x192
+drawing switches from the packed 1bpp non-MegaChip framebuffer to a 256x192
 resolution. In contrast to the original MEGA-CHIP-8 implementation, to support
 blending and the "scrolling feature" introduced by Mega-8, a set of multiple
 buffers is needed:
 
 * Collision-Buffer: A framebuffer: 256 * 192 bytes, pixel value: palette index
-* Back-Buffer: Used for the current ongoing sprite draing: 256 * 192, pixel value: RGBA8 color (actual channel order is implementation defined)
+* Back-Buffer: Used for the current ongoing sprite drawing: 256 * 192, pixel value: RGBA8 color (actual channel order is implementation defined)
 * Front-Buffer: `00E0` pushes the back-buffer here for presentation: 256 * 192, pixel value: RGBA8 color (actual channel order is implementation defined)
 * A display texture used to draw the actual screen content in the emulators UI, 256 * 192 pixels, whatever your screen format is.
 
@@ -722,7 +758,7 @@ buffers is needed:
 RGBA from the palette of the corresponding pixels. During this drawing the
 blend mode is in effect. The following blend modes (set by `080n`) are supported:
 
-* 0=normal, ist all original MEGACHIP-8 supports, just overwrite the framebuffer value with the color of the new pixel
+* 0=normal, is all original MEGACHIP-8 supports, just overwrite the framebuffer value with the color of the new pixel
 * 1=25%, blend 25% of the sprite pixel color with 75% of the framebuffer color
 * 2=50%, blend 50% of the sprite pixel color with 50% of the framebuffer color
 * 3=75%, blend 75% of the sprite pixel color with 25% of the framebuffer color
@@ -732,14 +768,14 @@ blend mode is in effect. The following blend modes (set by `080n`) are supported
 Changing the palette after drawing, does not change the displayed colors of already-drawn pixels,
 contrary to the original MEGA-CHIP-8 implementation.
 
-The normal display Process is that each `00E0` (or timeout of the frame, if the
+The normal display process is that each `00E0` (or timeout of the frame, if the
 ipf is reached) pushes the back-buffer content into front-buffer (you can also
-swap them and clear the then new baclk-buffer, the actual solution is up to you).
+swap them and clear the then new back-buffer, the actual solution is up to you).
 The front-buffer is then translated into the display texture and displayed in
 the emulators UI. The reason for the two buffers is to implement the "scrolling
 feature" introduced by Mega-8.
 
-#### B.2.5.1 Scrolling in MegaChip mode
+##### B.2.5.2.1 Scrolling in MegaChip Mode
 
 Mega-8 introduced a "scrolling feature" that uses the regular scrolling opcodes 
 (`00Bn`, `00Cn`, `00FB`, `00FC`) to scroll the _front-buffer_ (the framebuffer
@@ -748,7 +784,7 @@ and `00FC`). Then the display texture is updated by merging the _front-buffer_
 with the _back-buffer_ wherever the _front-buffer_ is transparent. This merge
 is then displayed.
 
-#### B.2.5.2 Palette
+##### B.2.5.2.2 Palette
 
 `02nn` loads `nn` palette entries from memory pointed to by index register `I`.
 
@@ -758,7 +794,7 @@ palette load. Usable programmable entries are effectively `1..254`.
 Contrary to the original MEGA-CHIP-8 implementation, entry `255` is recommended
 to be initialized white on reset. Entry `0` is always black transparent.
 
-#### B.2.5.3 Sprites
+##### B.2.5.2.3 Sprites
 
 `03nn` sets MegaChip sprite width. `04nn` sets MegaChip sprite height.
 
@@ -778,7 +814,7 @@ In MegaChip mode, normal `Dxyn` ignores `n` and draws a `width * height`
 Drawing in MegaChip mode is _direct replacement_, not XOR. Coordinates are
 not wrapped; pixels outside `0..255, 0..191` are clipped/skipped.
 
-#### B.2.5.4 Collision
+##### B.2.5.2.4 Collision
 
 `09nn` sets the MegaChip collision color index. `Dxyn` clears `VF`, then
 sets it if a drawn nonzero source pixel replaces a destination pixel equal
@@ -789,7 +825,7 @@ if dst == collision_color and src != collision_color:
     VF = 1
 ```
 
-#### B.2.5.5 Font Drawing
+##### B.2.5.2.5 Font Drawing
 
 After `Fx29` or `Fx30`, the next `Dxyn` in MegaChip mode, `Dxyn` draws from the
 font address. Set font bits are drawn with palette index `255`, white.
@@ -805,7 +841,7 @@ address being below 0x100, instead of a volatile flag, still it is recommended
 to use `Fx29` or `Fx30` again for each font digit, even if it is the same, 
 to be compatible to flag based implementations.
 
-#### B.2.5.6 Mode Mixing Warning
+##### B.2.5.2.6 Mode Mixing Warning
 
 Due to the issues with mixing modes in the original implementation, it is
 strongly suggested to not enable MegaChip mode when in hires SCHIP mode, 
@@ -852,6 +888,9 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 | `00Cn`             | scroll screen content down `n` pixel                                                                                                                  |
 | `00E0`             | clears the screen                                                                                                                                     |
 | `00EE`             | return from subroutine to address pulled from stack                                                                                                   |
+| `00FB`             | scroll screen content right by four pixels                                                                                                            |
+| `00FC`             | scroll screen content left by four pixels                                                                                                             |
+| `00FD`             | exit the interpreter                                                                                                                                  |
 | `01nn`&nbsp;`nnnn` | set `I` to `NNNNNN` (24 bit)                                                                                                                          |
 | `02kk`             | load `kk` colors from `I` into the palette, colors are in ARGB                                                                                        |
 | `03kk`             | set sprite width to `kk` (not used for font sprites)                                                                                                  |

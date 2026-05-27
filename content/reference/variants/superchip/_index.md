@@ -60,19 +60,19 @@ Choose the types that match this best for your chosen language.
 
 The SUPER-CHIP VM/interpreter has the following state:
 
-| Name                 | Type                  | Description                                                                                                                                                                                                    |
-|----------------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `V0...VF`            | array of 16 `uint8`   | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.          |
-| `I`                  | `uint16`              | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                        |
-| `DT`                 | `uint8`               | Delay timer; decremented at the variant frame rate while non-zero.                                                                                                                                             |
-| `ST`                 | `uint8`               | Sound timer; decremented at the variant frame rate while non-zero; a beep is produced while `ST > 0`.                                                                                                          |
-| `PC`                 | `uint16`              | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further.                                                                                     |
-| `SP`                 | `uint16`              | Stack pointer; points to the top of the call stack.                                                                                                                                                            |
-| `stack`              | array of 16 `uint16`  | Call stack storage, commonly modeled as an array with at least 16 entries.                                                                                                                                      |
-| `ram`                | array of 4096 `uint8` | Main memory: 4k of RAM, organized in bytes.                                                                                                                                                                    |
-| `screen`             | array of pixels       | Display buffer for the current mode. For a generic emulator, a 128×64 byte-per-pixel buffer is the simplest representation, even when lores mode is active.                                                     |
-| `extendedMode`       | `bool`                | `false` for lores 64×32 mode, `true` for extended/hires 128×64 mode.                                                                                                                                           |
-| `persistentFlags`    | array of 8 `uint8`    | Storage used by `Fx75`/`Fx85` for registers `V0` to `Vx`, with `x <= 7`.                                                                                                                                        |
+| Name                 | Type                  | Description                                                                                                                                                                                             |
+|----------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `V0...VF`            | array of 16 `uint8`   | General-purpose data registers. `VF` also acts as a flag register (carry/borrow/pixel-collision); if there’s a conflict between using `VF` as a normal register vs. as a flag, the flag meaning wins.   |
+| `I`                  | `uint16`              | Index / memory address register (used e.g. for sprite addresses, BCD conversion, etc.).                                                                                                                 |
+| `DT`                 | `uint8`               | Delay timer; decremented at the variant frame rate while non-zero.                                                                                                                                      |
+| `ST`                 | `uint8`               | Sound timer; decremented at the variant frame rate while non-zero; a beep is produced while `ST > 0`.                                                                                                   |
+| `PC`                 | `uint16`              | Program Counter; starts at `0x200`. Normally increments by 2 per fetched instruction; some instructions change it further.                                                                              |
+| `SP`                 | `uint16`              | Stack pointer; points to the top of the call stack.                                                                                                                                                     |
+| `stack`              | array of 16 `uint16`  | Call stack storage, commonly modeled as an array with at least 16 entries.                                                                                                                              |
+| `ram`                | array of 4096 `uint8` | Main memory: 4k of RAM, organized in bytes.                                                                                                                                                             |
+| `screen`             | array of pixels       | Display buffer for the current mode. For a generic emulator, a 128×64 byte-per-pixel buffer is the simplest representation, even when lores mode is active.                                             |
+| `extendedMode`       | `bool`                | `false` for lores 64×32 mode, `true` for extended/hires 128×64 mode.                                                                                                                                    |
+| `persistentFlags`    | array of 8 `uint8`    | Storage used by `Fx75`/`Fx85` for registers `V0` to `Vx`, with `x <= 7`.                                                                                                                                |
 
 Stack pointer `SP` and program counter `PC` are internal registers of the interpreter, and in-accessible to
 a SUPER-CHIP program. The model suggested here is the most common approach to implement them, but stack could
@@ -85,7 +85,7 @@ A generic SUPER-CHIP implementation has 4k ram organized in bytes with a memory 
 
 ```
 0x000-0x04F   built-in small SUPER-CHIP font
-0x050-0x0F0   build-in big font
+0x050-0x0EF   build-in big font
 0x0F0-0x1FF   unused
 0x200-0xFFF   Program / working RAM
 ```
@@ -113,12 +113,12 @@ even have no effect, and setting delay to 1 is a very common pattern to pace a g
 
 ## 2.5 Graphics
 
-| Property          | Lores Mode                                           | Extended/Hires Mode                                                                                                               |
-|-------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| Resolution        | **64×32** logical pixels                             | **128×64** pixels                                                                                                                  |
-| Colour depth      | Monochrome (pixel = on/off)                          | Monochrome (pixel = on/off)                                                                                                        |
-| Drawing mode      | XOR                                                  | XOR                                                                                                                                |
-| Refresh           | 64Hz on calculator variants, 60Hz on Modern SCHIP    | 64Hz on calculator variants, 60Hz on Modern SCHIP                                                                                  |
+| Property          | Lores Mode                                           | Extended/Hires Mode                                    |
+|-------------------|------------------------------------------------------|--------------------------------------------------------|
+| Resolution        | **64×32** logical pixels                             | **128×64** pixels                                      |
+| Colour depth      | Monochrome (pixel = on/off)                          | Monochrome (pixel = on/off)                            |
+| Drawing mode      | XOR                                                  | XOR                                                    |
+| Refresh           | 64Hz on calculator variants, 60Hz on Modern SCHIP    | 64Hz on calculator variants, 60Hz on Modern SCHIP      |
 
 The physical calculator display is **131×64** pixels. In extended mode, the 128×64 interpreter screen leaves three
 columns at the right edge of the LCD unused. In lores mode, the 64×32 interpreter screen is drawn as 2×2 LCD
@@ -228,50 +228,50 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 The table below enumerates the common SUPER-CHIP opcode set. The following section adds the sub-variant specific
 differences.
 
-| Opcode             | Description                                                                                                                                                                                |
-|--------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `00E0`             | clears the screen                                                                                                                                                                          |
-| `00EE`             | return from subroutine to address pulled from stack                                                                                                                                        |
-| `00FD`             | exit the interpreter                                                                                                                                                                       |
-| `00FE`             | disable extended mode and switch to lores, 64×32                                                                                                                                           |
-| `00FF`             | enable extended mode and switch to hires, 128×64                                                                                                                                           |
-| `0mmm`             | native machine-code call in classic CHIP-8; for a generic SUPER-CHIP emulator this can be ignored or treated as invalid                                                                    |
-| `1mmm`             | jump to address `mmm`                                                                                                                                                                      |
-| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                                                        |
-| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                                                             |
-| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                                                             |
-| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                                                             |
-| `6xkk`             | set `Vx` to `kk`                                                                                                                                                                           |
-| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                                                              |
-| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                                                              |
-| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`; `VF` is left unchanged                                                                                                                       |
-| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`; `VF` is left unchanged                                                                                                                      |
-| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`; `VF` is left unchanged                                                                                                                      |
-| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                                                           |
-| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                                                                   |
-| `8xy6`             | shift `Vx` one bit to the right, set `VF` to the bit shifted out; `y` is ignored                                                                                                           |
-| `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                                      |
-| `8xyE`             | shift `Vx` one bit to the left, set `VF` to the bit shifted out; `y` is ignored                                                                                                            |
-| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                                                             |
-| `Ammm`             | set `I` to `mmm`                                                                                                                                                                           |
-| `Bxkk`             | jump to address `xkk + Vx`, so the `x` nibble doubles as the upper address nibble and the index of the register to add                                                                     |
-| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                                                                   |
-| `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` in lores, or `Vx & 127`, `Vy & 63` in extended/hires mode, starting at `I`; `I` is not changed                                  |
-| `Dxy0`             | draw an extended sprite from memory at `I`; 8×16 in lores on calculator variants, 16×16 in extended/hires mode                                                                             |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                                                             |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                                                         |
-| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                                                           |
-| `Fx0A`             | wait for a pressed key to be released and set `Vx` to its number                                                                                                                           |
-| `Fx15`             | set delay timer to `Vx`                                                                                                                                                                    |
-| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                                                           |
-| `Fx1E`             | add `Vx` to `I`; if this increments `I` above `0xFFF`, the interpreter ends                                                                                                                |
-| `Fx29`             | small-font lookup in most versions, but see the sub-variant sections for the exact behavior                                                                                                |
-| `Fx30`             | big-font lookup in v1.0 and v1.1; invalid or unavailable in v1.0 BETA                                                                                                                      |
-| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                                                              |
-| `Fx55`             | write the content of `V0` to `Vx` at the memory pointed to by `I`; the change to `I` depends on the sub-variant                                                                            |
-| `Fx65`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`; the change to `I` depends on the sub-variant                                                                 |
-| `Fx75`             | store registers `V0` to `Vx` in persistent storage, with `x <= 7`                                                                                                                          |
-| `Fx85`             | load registers `V0` to `Vx` from persistent storage, with `x <= 7`                                                                                                                         |
+| Opcode             | Description                                                                                                                                               |
+|--------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `00E0`             | clears the screen                                                                                                                                         |
+| `00EE`             | return from subroutine to address pulled from stack                                                                                                       |
+| `00FD`             | exit the interpreter                                                                                                                                      |
+| `00FE`             | disable extended mode and switch to lores, 64×32                                                                                                          |
+| `00FF`             | enable extended mode and switch to hires, 128×64                                                                                                          |
+| `0mmm`             | native machine-code call in classic CHIP-8; for a generic SUPER-CHIP emulator this can be ignored or treated as invalid                                   |
+| `1mmm`             | jump to address `mmm`                                                                                                                                     |
+| `2mmm`             | push return address onto stack and call subroutine at address `mmm`                                                                                       |
+| `3xkk`             | skip next opcode if `Vx == kk`                                                                                                                            |
+| `4xkk`             | skip next opcode if `Vx != kk`                                                                                                                            |
+| `5xy0`             | skip next opcode if `Vx == Vy`                                                                                                                            |
+| `6xkk`             | set `Vx` to `kk`                                                                                                                                          |
+| `7xkk`             | add `kk` to `Vx` (no flag is set on overflow)                                                                                                             |
+| `8xy0`             | set `Vx` to the value of `Vy`                                                                                                                             |
+| `8xy1`             | set `Vx` to the result of bitwise `Vx OR Vy`; `VF` is left unchanged                                                                                      |
+| `8xy2`             | set `Vx` to the result of bitwise `Vx AND Vy`; `VF` is left unchanged                                                                                     |
+| `8xy3`             | set `Vx` to the result of bitwise `Vx XOR Vy`; `VF` is left unchanged                                                                                     |
+| `8xy4`             | add `Vy` to `Vx`, `VF` is set to `1` if an overflow happened, to `0` if not, even if `x=F`! (VF is written last)                                          |
+| `8xy5`             | subtract `Vy` from `Vx`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)                                  |
+| `8xy6`             | shift `Vx` one bit to the right, set `VF` to the bit shifted out; `y` is ignored                                                                          |
+| `8xy7`             | set `Vx` to the result of subtracting `Vx` from `Vy`, `VF` is set to `0` if an underflow happened, to `1` if not, even if `x=F`! (VF is written last)     |
+| `8xyE`             | shift `Vx` one bit to the left, set `VF` to the bit shifted out; `y` is ignored                                                                           |
+| `9xy0`             | skip next opcode if `Vx != Vy`                                                                                                                            |
+| `Ammm`             | set `I` to `mmm`                                                                                                                                          |
+| `Bxkk`             | jump to address `xkk + Vx`, so the `x` nibble doubles as the upper address nibble and the index of the register to add                                    |
+| `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                                  |
+| `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` in lores, or `Vx & 127`, `Vy & 63` in extended/hires mode, starting at `I`; `I` is not changed   |
+| `Dxy0`             | draw an extended sprite from memory at `I`; 8×16 in lores on calculator variants, 16×16 in extended/hires mode                                            |
+| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                            |
+| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                        |
+| `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                          |
+| `Fx0A`             | wait for a pressed key to be released and set `Vx` to its number                                                                                          |
+| `Fx15`             | set delay timer to `Vx`                                                                                                                                   |
+| `Fx18`             | set the sound timer to `Vx`, the buzzer is buzzing until the sound timer is back to `0`, setting it to `0` stops an ongoing buzz                          |
+| `Fx1E`             | add `Vx` to `I`; if this increments `I` above `0xFFF`, the interpreter ends                                                                               |
+| `Fx29`             | small-font lookup in most versions, but see the sub-variant sections for the exact behavior                                                               |
+| `Fx30`             | big-font lookup in v1.0 and v1.1; invalid or unavailable in v1.0 BETA                                                                                     |
+| `Fx33`             | write the value of `Vx` as BCD value to memory at the addresses `I` (hundreds), `I+1` (tens) and `I+2` (ones)                                             |
+| `Fx55`             | write the content of `V0` to `Vx` at the memory pointed to by `I`; the change to `I` depends on the sub-variant                                           |
+| `Fx65`             | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`; the change to `I` depends on the sub-variant                                |
+| `Fx75`             | store registers `V0` to `Vx` in persistent storage, with `x <= 7`                                                                                         |
+| `Fx85`             | load registers `V0` to `Vx` from persistent storage, with `x <= 7`                                                                                        |
 
 > [!NOTE]
 > **NOTE:** \
@@ -286,12 +286,12 @@ differences.
 
 The BETA version differs from the common SUPER-CHIP behavior in these places:
 
-| Opcode | Description                                                                                                                                                         |
-|--------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Fx29` | set `I` to an address pointing to big font (8×10) digits for `Vx > 15 && Vx < 26` and pixel garbage for the rest                                                    |
-| `Fx30` | not available                                                                                                                                                       |
-| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x`                                                                        |
-| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x`                                                             |
+| Opcode | Description                                                                                                          |
+|--------|:---------------------------------------------------------------------------------------------------------------------|
+| `Fx29` | set `I` to an address pointing to big font (8×10) digits for `Vx > 15 && Vx < 26` and pixel garbage for the rest     |
+| `Fx30` | not available                                                                                                        |
+| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x`                         |
+| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x`              |
 
 ### Big Font Data (8×10)
 
@@ -314,12 +314,12 @@ The BETA version differs from the common SUPER-CHIP behavior in these places:
 
 SUPER-CHIP v1.0 moves the big-font lookup to `Fx30` and lets `Fx29` behave like in CHIP-8:
 
-| Opcode | Description                                                                                                                                                         |
-|--------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Fx29` | set `I` to the 5 line high small hex graphics for the lowest nibble in `Vx`                                                                                          |
-| `Fx30` | set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest                                                                       |
-| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x`                                                                        |
-| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x`                                                             |
+| Opcode | Description                                                                                                 |
+|--------|:------------------------------------------------------------------------------------------------------------|
+| `Fx29` | set `I` to the 5 line high small hex graphics for the lowest nibble in `Vx`                                 |
+| `Fx30` | set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest              |
+| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is incremented by `x`                |
+| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is incremented by `x`     |
 
 ### Big Font Data (8×10)
 
@@ -344,15 +344,15 @@ SUPER-CHIP v1.0 uses the same big font data as the BETA version:
 
 SUPER-CHIP v1.1 adds scrolling and changes the index behavior of the register load/store instructions:
 
-| Opcode | Description                                                                                                                                                                                                 |
-|--------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `00Cn` | scroll the screen down by `n` display pixels; in lores this means half logical pixels, so scrolling by 4 scrolls 2 lores pixels. **`00C0` is not valid and ends the interpreter.**                          |
-| `00FB` | scroll the screen right by four display resolution pixels                                                                                                                                                    |
-| `00FC` | scroll the screen left by four display resolution pixels                                                                                                                                                     |
-| `Fx29` | set `I` to the 5 line high small hex graphics for the lowest nibble in `Vx`                                                                                                                                  |
-| `Fx30` | set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest                                                                                                               |
-| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                                                                        |
-| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                                                                             |
+| Opcode | Description                                                                                                                                                                           |
+|--------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `00Cn` | scroll the screen down by `n` display pixels; in lores this means half logical pixels, so scrolling by 4 scrolls 2 lores pixels. **`00C0` is not valid and ends the interpreter.**    |
+| `00FB` | scroll the screen right by four display resolution pixels                                                                                                                             |
+| `00FC` | scroll the screen left by four display resolution pixels                                                                                                                              |
+| `Fx29` | set `I` to the 5 line high small hex graphics for the lowest nibble in `Vx`                                                                                                           |
+| `Fx30` | set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest                                                                                        |
+| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                                                                                                 |
+| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed                                                                                      |
 
 `Dxy0`/`Dxyn` in hires on the calculator has the special collision behavior that `VF` contains the number of rows
 where a collision happened plus the number of rows clipped at the bottom border.
@@ -383,6 +383,20 @@ where a collision happened plus the number of rows clipped at the bottom border.
 
 Modern SUPER-CHIP is based on the SUPER-CHIP behavior of the Octo implementation. The idea is to leave out the
 most exotic parts of the original calculator variants and simplify the implementation.
+
+| Opcode | Description                                                                                                 |
+|--------|:------------------------------------------------------------------------------------------------------------|
+| `00Cn` | scroll the screen down by `n` logical pixels of the current resolution                                      |
+| `00FB` | scroll the screen right by four logical pixels                                                              |
+| `00FC` | scroll the screen left by four logical pixels                                                               |
+| `00FD` | exit the interpreter                                                                                        |
+| `00FE` | disable extended mode and switch to lores, 64×32; the screen is cleared                                     |
+| `00FF` | enable extended mode and switch to hires, 128×64; the screen is cleared                                     |
+| `Dxy0` | draw a 16×16 pixel sprite from memory at `I`, independent of the current resolution                         |
+| `Fx29` | set `I` to the 5 line high small hex graphics for the lowest nibble in `Vx`                                 |
+| `Fx30` | set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest              |
+| `Fx55` | write the content of `V0` to `Vx` at the memory pointed to by `I`, `I` is not changed                       |
+| `Fx65` | read the bytes from memory pointed to by `I` into the registers `V0` to `Vx`, `I` is not changed            |
 
 The differences to SUPER-CHIP v1.1 are:
 
