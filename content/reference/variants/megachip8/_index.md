@@ -77,11 +77,13 @@ for policing, but for finding common ground where possible. :wink:
 
 ----
 
-# A. Original MEGA-CHIP-8: Technical Reference
+# A Original MEGA-CHIP-8: Technical Reference
 
-**This is MEGA-CHIP-8 as in RS-M8001, not specifically the SDK that was released for it.**
+**This is MEGA-CHIP-8 as in RS-M8001, the `megachip.exe` by Rivival-Studios, also documenting
+discrepancies between the SDK document [`megachip10.txt`](/reference/resources/megachip10.md) and the actual behavior of the
+Windows 32bit binary.**
 
-## A.1. Overview
+## A.1 Overview
 
 MEGA-CHIP‑8 is derived from SUPER-CHIP and was released in 2007 as a Windows executable with a few
 example programs. 
@@ -116,7 +118,7 @@ All CHIP-8 programs are loaded at memory location **`0x200`**, where the interpr
 > I would not recomment to replicate that in a new implementation, but new games should not access
 > ram below `0x200`.
 
-## A.2. Virtual Machine Model
+## A.2 Virtual Machine Model
 
 ### A.2.1 State
 
@@ -600,9 +602,9 @@ mode and never change the index register `I`.
 
 ----
 
-# B. Modern-MegaChip: Technical Reference
+# B Modern-MegaChip: Technical Reference
 
-## B.1. Overview
+## B.1 Overview
 
 As one can see from the section about the original RS-M8001 MEGA-CHIP-8 implementation,
 there are a bunch of really quirky details and unimplemented features in it.
@@ -618,7 +620,12 @@ MegaChip blending and the features used in the demo were the base. From there
 we explored how to support the MegaTechDemo in our own implementations
 and semi-agreed on a set of features that modern MegaChip should support.
 
-## B.2. Virtual Machine Model
+Like the original MEGA-CHIP-8, modern MegaChip is derived from SUPER-CHIP
+or SCHIP. The original MEGA-CHIP has some issues in its SCHIP mode, and
+as Mega-8 is mostly doing a _modern SCHIP_ as fallback, it is also the
+recommended way to implement the SCHIP opcodes in MegaChip.
+
+## B.2 Virtual Machine Model
 
 ### B.2.1 State
 

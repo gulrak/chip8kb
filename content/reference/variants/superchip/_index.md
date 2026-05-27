@@ -105,6 +105,7 @@ The data for easy use in an emulator:
 ---
 
 ## SUPER-CHIP v1.0 (BETA)
+
 * `Fx29` will set `I` to an address pointing to big font (8×10) digits for `Vx > 15 && Vx < 26` and pixel garbage for the rest.
 * `Fx55`/`Fx65` increment `I` by `x` instead of `x+1`.
 
@@ -128,6 +129,7 @@ The data for easy use in an emulator:
 ---
 
 ## SUPER-CHIP v1.0
+
 * `Fx29` behaves like in CHIP-8.
 * A new `Fx30` will set `I` to an address pointing to big font digits for `Vx < 10` and pixel garbage for the rest.
 * `Fx55`/`Fx65` increment `I` by `x` instead of `x+1`.
@@ -138,7 +140,8 @@ _Same as the BETA one (above)._
 
 ---
 
-## SUPER CHIP v1.1
+## SUPER-CHIP v1.1
+
 * A new `00Cn` instruction will scroll the screen down by `n` pixels, the calculator implementation will always scroll
   `n` display-pixels, not logical pixels, so scrolling by 4 will scroll 4 128×64-resolution pixels in extended mode,
   and 2 64×32-resolution pixels in lores mode. **Be aware that `00C0` is not a valid instruction and will end the interpreter.**
@@ -168,6 +171,21 @@ _Same as the BETA one (above)._
     0x3C, 0x7E, 0xC3, 0xC3, 0x7E, 0x7E, 0xC3, 0xC3, 0x7E, 0x3C, // big 8
     0x3C, 0x7E, 0xC3, 0xC3, 0x7F, 0x3F, 0x03, 0x03, 0x3E, 0x7C  // big 9
 ```
+
+## Modern SUPER-CHIP
+
+There is a new variant of SUPER-CHIP we now call "Modern SUPER-CHIP", that is based on the
+SUPER-CHIP behavior of the Octo implementation. The idea is to leave out the most exotic parts
+of the original SUPER-CHIP and simplify the implementation. The differences to
+SUPER-CHIP v1.1 are:
+
+* Framerate and timer frequency are simply 60Hz
+* Mode changes (enabling extended or hires mode or disabling extended or hires mode) always clear the screen.
+* The `00Cn` instruction scrolls the screen down by `n` logical pixels, so no half pixel scrolling in lores mode.
+* The `00FB` and `00FC` instructions scroll the screen right (`00FB`)  or left (`00FC`) by four logical pixels.
+* The forced screen clear and no half-pixel-scroll allow to not care about legacy SCHIP drawing, as the artifacts possible by it can not happen.
+* The `Dxy0` always draws 16x16 pixels, even when not in extended (hires) mode.
+* There is no DISPLAY WAIT even in lores mode (so when extended mode is off).
 
 # Acknowledgments
 
