@@ -199,12 +199,57 @@ a games using sample playback and be compatible with even RS-M8001, remember to 
 
 ### A.2.5 Graphics
 
-MegaChip contains CHIP-8/SCHIP-compatible graphics, so as long as the program
-stays outside of MegaChip mode, drawing follows the normal CHIP-8/SCHIP
-[drawing rules](/reference/variants/classic-chip-8/#25-graphics) using a 1bpp framebuffer.
+MEGA-CHIP-8 contains two mostly independent graphics paths. As long as the program
+stays outside of MegaChip mode, it uses a CHIP-8/SCHIP-compatible 1bpp framebuffer.
+When MegaChip mode is enabled, drawing switches to the 256×192 indexed-color
+MegaChip framebuffer.
+
+#### A.2.5.1 Non-MegaChip Mode
+
+When MegaChip mode is disabled, graphics are monochrome and use a 1bpp framebuffer.
+The screen can be in lores or SCHIP extended/hires mode:
+
+| Property     | Lores Mode              | Hires Mode               |
+|--------------|-------------------------|--------------------------|
+| Resolution   | **64×32** pixels        | **128×64** pixels        |
+| Color depth  | 1bpp, pixel on/off      | 1bpp, pixel on/off       |
+| Drawing mode | XOR                     | XOR                      |
+
+`00FE` disables SCHIP extended mode and switches to lores, `00FF` enables SCHIP
+extended/hires mode. These opcodes change the SCHIP mode flag and the current
+framebuffer size, but not the MegaChip mode flag.
+
+`Dxyn` draws an 8×n sprite from memory at `I`. Drawing is XORed into the 1bpp
+framebuffer, and `VF` is set to `1` if any drawn bit collides with an already-set
+display bit. Otherwise `VF` is set to `0`.
+
+The origin is wrapped, but the horizontal part of the sprite is not really clipped
+or wrapped. If a sprite row continues past the right edge, it continues into the
+pixels left in the row below. Vertical clipping only happens at the bottom.
+
+`Dxy0` is only a drawing instruction while SCHIP extended/hires mode is active.
+In lores mode it performs no drawing, and `VF` is not cleared or updated because
+the draw routine is not called.
+
+In hires mode, `Dxy0` draws a 16×16 monochrome sprite from `I`. The sprite consumes
+32 bytes, stored as two bytes per row for 16 rows. Drawing is XORed into the packed
+1bpp framebuffer.
+
+Coordinates for `Dxy0` are wrapped for the sprite origin:
+
+```
+x = Vx & 0x7f
+y = Vy & 0x3f
+```
+
+The destination row stride is 16 bytes, matching the 128×64 SCHIP framebuffer.
+There is an original off-by-one vertical clipping quirk: row 63 is never reached
+by a `Dxy0` sprite, so it clips one line early.
+
+#### A.2.5.2 MegaChip Mode
 
 MegaChip mode is enabled with `0011` and disabled with `0010`. When enabled,
-drawing switches from the packed 1bpp CHIP-8/SCHIP framebuffer to a 256x192
+drawing switches from the packed 1bpp non-MegaChip framebuffer to a 256x192
 8bpp framebuffer.
 
 ```
@@ -216,14 +261,14 @@ pixel value: palette index
 only when the frame is presented, using the current MegaChip palette. Changing
 the palette after drawing changes the displayed colors of already-drawn pixels.
 
-#### A.2.5.1 Palette
+##### A.2.5.2.1 Palette
 
 `02nn` loads `nn` palette entries from memory pointed to by index register `I`.
 
 Entry `0` is not loaded by `02nn`; entry `255` is forced to white after every
 palette load. Usable programmable entries are effectively `1..254`.
 
-#### A.2.5.2 Sprites
+##### A.2.5.2.2 Sprites
 
 `03nn` sets MegaChip sprite width. `04nn` sets MegaChip sprite height.
 
@@ -243,7 +288,7 @@ In MegaChip mode, normal `Dxyn` ignores `n` and draws a `width * height`
 Drawing in MegaChip mode is _direct replacement_, not XOR. Coordinates are
 not wrapped; pixels outside `0..255, 0..191` are clipped/skipped.
 
-#### A.2.5.3 Collision
+##### A.2.5.2.3 Collision
 
 `09nn` sets the MegaChip collision color index. `Dxyn` clears `VF`, then 
 sets it if a drawn nonzero source pixel replaces a destination pixel equal 
@@ -254,7 +299,7 @@ if dst == collision_color and src != collision_color:
     VF = 1
 ```
 
-#### A.2.5.4 Font Drawing
+##### A.2.5.2.4 Font Drawing
 
 After `Fx29` or `Fx30`, the next `Dxyn` in MegaChip mode draws from the 
 built-in font table instead of memory. Set font bits are drawn with palette index
@@ -270,7 +315,7 @@ This source choice is controlled by a temporary font flag. `Dxyn` clears
 the flag afterward, so a second `Dxyn` requires another `Fx29` or `Fx30` 
 to draw a font sprite again.
 
-#### A.2.5.5 Mode Mixing Warning
+##### A.2.5.2.5 Mode Mixing Warning
 
 `00FE`/`00FF` and `0010`/`0011` change different flags but share screen-size 
 globals. Mixing SCHIP hires opcodes with MegaChip mode can produce inconsistent 
@@ -498,8 +543,8 @@ neither clipping nor real wrapping happens.
 ### A.4.5 Drawing `Dxyn` in non-MegaChip mode
 
 Horizontal handling does not clip. The origin is wrapped to 0..127,
-but the 16-pixel row is continuing in the pixels left, one line below, so
-neither clipping nor real wrapping happens.
+but the subsequent sprite row is continuing in the pixels left, one line below, so
+neither clipping nor real wrapping happens. Clipping only happens at the bottom.
 
 ### A.4.6 Drawing `Dxyn` in MegaChip mode
 
