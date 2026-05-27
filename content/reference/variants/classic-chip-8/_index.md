@@ -29,7 +29,7 @@ by Joseph Weisbecker in 1977, suitable for both program authors and emulator wri
 
 ---  
 
-# 1. Overview
+# 1 Overview
 
 CHIP‑8 is a simple interpreted language created in the late&nbsp;1970s for hobbyist computers such as the **COSMAC&nbsp;VIP** (RCA CDP1802 based). It defines a virtual machine with:
 
@@ -45,7 +45,7 @@ All CHIP-8 programs are loaded at memory location **`0x200`**, where the interpr
 
 ---  
 
-# 2. Virtual Machine Model
+# 2 Virtual Machine Model
 
 ## 2.1 State
 
@@ -296,7 +296,7 @@ Key states are queried by opcodes `Ex9E`, `ExA1`, and `Fx0A`.
 
 ---  
 
-# 3. Instruction Format
+# 3 Instruction Format
 
 * All instructions are **16 bit (2 bytes)**, stored big‑endian (`high byte` first).
 * The most significant nibble determines the primary opcode class; the remaining nibbles supply operands or
@@ -317,7 +317,7 @@ After fetch, the PC normally is incremented by 2 and jump-, branch-, or skip-ins
 
 ---  
 
-# 4. Original CHIP‑8 Opcode Set
+# 4 Original CHIP‑8 Opcode Set
 
 The table below enumerates **every opcode** supported by the original COSMAC VIP implementation of CHIP-8.
 
@@ -402,7 +402,7 @@ pointed to by `I`. The wrapping of those intial
 
 ---  
 
-# 5. Main Loop / Execution Cycle
+# 5 Main Loop / Execution Cycle
 
 A generic CHIP-8 emulator should follow the following main loop:
 
@@ -425,7 +425,7 @@ A generic CHIP-8 emulator should follow the following main loop:
 
 ---  
 
-# 6. Reset Sequence & Program Loading 
+# 6 Reset Sequence & Program Loading 
 
 The recommended initialization and loading of programs is as follows:
 
@@ -457,7 +457,7 @@ initialization and program loading.
 
 ---
 
-# 7. CHIP-8 Quirks
+# 7 CHIP-8 Quirks
 
 As any CHIP-8 documentation nowadays is incomplete witout mentioning the concept of **quirks**,
 here are the most relevant ones at one place. It is recommended, but not necessary, to have these
