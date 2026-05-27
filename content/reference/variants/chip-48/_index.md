@@ -13,7 +13,7 @@ weight = 20
 that want to implement it as its own CHIP-8 variant instead of as a collection of quirks.)*
 
 You know CHIP-8 and are only interested in a compact description of the differences? Jump to the
-[TLDR section](#tldr).
+[TLDR section](#tldr-what-is-different-to-chip-8).
 
 ---
 
