@@ -343,7 +343,8 @@ A generic XO-CHIP emulator should follow the following main loop:
 {{% /steps %}}
 
 XO-CHIP has no implicit display wait. If you expose a display-wait quirk for compatibility with other variants,
-it should not be enabled for normal XO-CHIP behavior.
+it should not be enabled for normal XO-CHIP behavior. As XO-CHIP games typically use the delay timer for
+timing, it's useful to use a higher default IPF of maybe 500-1000 instructions per frame.
 
 ---
 

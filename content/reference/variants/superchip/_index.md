@@ -430,8 +430,8 @@ A generic SUPER-CHIP emulator for the calculator variants should follow the foll
 
 {{% /steps %}}
 
-For the calculator variants an adequate speed is **15 instructions per frame**. At 64Hz this means that the
-interpreter executes about 960 instructions per second, besides the limiting effect of display wait in lores mode.
+For the calculator variants an adequate speed is **30 instructions per frame**. At 64Hz this means that the
+interpreter executes about 1920 instructions per second, besides the limiting effect of DISPLAY WAIT in lores mode.
 
 Modern SUPER-CHIP runs at 60Hz, and there is no display wait.
 

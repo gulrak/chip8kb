@@ -109,6 +109,7 @@ It defines a virtual machine with:
 * Sprite sizes up to 256x256 pixels.
 * A typical hexadecimal keypad with **16 keys (0–F)**.
 * A buzzer that allows to emit a fixed frequency tone of varying duration, but also mono 8-bit sample playback.
+* Execution speed is 25IPF in lores, 50IPF in enxtended/hires mode, and 5000IPF in MegaChip mode.
 
 All CHIP-8 programs are loaded at memory location **`0x200`**, where the interpreter begins execution after a reset.
 
@@ -150,6 +151,8 @@ also be a stack-container if the chosen language offers one, and in that case th
 However, in that case common protection mechanisms against out-of-bounds access, like using masking to ensure
 the valid range, would need to be implemented using range checks. It also makes it harder to generate trace logs
 that are comparable to existing trace logs, so one should be aware of this, when not using the standard approach.
+
+Execution speed is 25IPF in lores, 50IPF in enxtended/hires mode, and 5000IPF in MegaChip mode.
 
 ### A.2.2 Memory Layout
 
@@ -990,6 +993,17 @@ The table below enumerates **every opcode** supported or documented by MEGA-CHIP
 > * Sprites clip by default, but a wrapping quirk should be available (needed for MegaTestDemo)
 > * `Bxkk` jumps to `xkk + Vx`
 > * `Dxyn` has a display wait in non-MegaChip lores mode
+
+### B.4.1 Specific Notes on Existing Modern MegaChip Implementations
+
+### Mega8 by Ready4Next
+
+* Mega8 can will draw a width of only a multiple of 8 when in MegaChip mode. Having a sprite with
+  e.g. a width of 20 will only draw rows of 16 pixels, but it still uses the correct width to
+  calculate the next row of sprite data in memory, so the sprites look mostly correct but get 
+  clipped at the right side. Modern MegaChip does not inherit this flaw, but if one wants to
+  write a game that also supports Mega8, one should pad the sprites with transparent pixels to ensure
+  compatibility.
 
 ----
 

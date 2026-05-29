@@ -423,6 +423,9 @@ A generic CHIP-8 emulator should follow the following main loop:
 
 {{% /steps %}}
 
+The recommended execution speed is about 10 instructions per frame, without DISPLAY WAIT quirk
+and 15 instructions per frame with DISPLAY WAIT quirk enabled/implemented.
+
 ---  
 
 # 6 Reset Sequence & Program Loading 
