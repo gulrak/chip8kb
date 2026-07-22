@@ -29,7 +29,7 @@ dbPage: true
   <p class="c8db-or"><span>or identify a local file</span></p>
 
   <section class="c8db-drop" id="c8db-drop" aria-labelledby="c8db-drop-title">
-    <input class="c8db-file-input" id="c8db-file" type="file">hu
+    <input class="c8db-file-input" id="c8db-file" type="file">
     <div class="c8db-drop-icon" aria-hidden="true">↓</div>
     <h2 id="c8db-drop-title">Drop a program file</h2>
     <p>or choose one from your device</p>
