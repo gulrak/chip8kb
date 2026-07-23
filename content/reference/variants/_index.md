@@ -66,7 +66,7 @@ this will be a quicker way of getting all relevant changes.
   compatible to the original by Joseph Weisbecker in 1977 for the COSMAC VIP
 * **[CHIP-48](chip-48)** [[TLDR](/reference/variants/chip-48/#tldr-what-is-different-to-chip-8)]\
   initial version of CHIP-8 on HP-48 family calculators, by Andreas Gustafsson, 1990
-* **[SUPER-CHIP](super-chip)** [[TLDR](/reference/variants/superchip/#tldr-what-is-different-to-chip-8)]\
+* **[SUPER-CHIP](superchip)** [[TLDR](/reference/variants/superchip/#tldr-what-is-different-to-chip-8)]\
   an expansion of CHIP-48 for the HP-48SX with 128x64 hires mode by Erik Bryntse, 1991
 * **[MEGA-CHIP-8](megachip8)** \
   a colorful demo scene oriented CHIP-8 extension by Martijn Wanting, Revival-Studios, 2007
