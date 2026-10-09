@@ -23,7 +23,7 @@ First of all for this to be a useful reference, I need to address the elephant i
 
 Historically MEGA-CHIP-8 is a CHIP-8 variant specified in 2007 by Martijn Wanting, Revival-Studios, when
 they released the SDK for it. The [megachip10.txt](/reference/resources/megachip10) document describes
-their vision of MEGA-CHIP-8. They also released an emulator [⎋ RS-M8001](https://www.revival-studios.com/other.php)
+their vision of MEGA-CHIP-8. They also released an emulator [⎋ RS-M8001, on archived.org](https://web.archive.org/web/20251124161214/https://www.revival-studios.com/other.php)
 as binary only, for Windows, and a few demos and a game based on MEGA-CHIP-8. Sadly, the behavior
 of that emulator is not agreeing with the specification from the SDK, and also the SDK contains
 elements with question marks that seem to not be finalized. No update to either the emulator or the SDK
