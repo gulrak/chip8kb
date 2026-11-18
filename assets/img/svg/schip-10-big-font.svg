@@ -122,10 +122,6 @@
       <rect x="632" y="16" width="8" height="8"/>
       <rect x="8" y="24" width="8" height="8"/>
       <rect x="16" y="24" width="8" height="8"/>
-      <rect x="24" y="24" width="8" height="8"/>
-      <rect x="32" y="24" width="8" height="8"/>
-      <rect x="40" y="24" width="8" height="8"/>
-      <rect x="48" y="24" width="8" height="8"/>
       <rect x="56" y="24" width="8" height="8"/>
       <rect x="64" y="24" width="8" height="8"/>
       <rect x="80" y="24" width="8" height="8"/>
@@ -147,7 +143,6 @@
       <rect x="336" y="24" width="8" height="8"/>
       <rect x="392" y="24" width="8" height="8"/>
       <rect x="400" y="24" width="8" height="8"/>
-      <rect x="408" y="24" width="8" height="8"/>
       <rect x="504" y="24" width="8" height="8"/>
       <rect x="512" y="24" width="8" height="8"/>
       <rect x="520" y="24" width="8" height="8"/>
@@ -305,10 +300,6 @@
       <rect x="640" y="56" width="8" height="8"/>
       <rect x="8" y="64" width="8" height="8"/>
       <rect x="16" y="64" width="8" height="8"/>
-      <rect x="24" y="64" width="8" height="8"/>
-      <rect x="32" y="64" width="8" height="8"/>
-      <rect x="40" y="64" width="8" height="8"/>
-      <rect x="48" y="64" width="8" height="8"/>
       <rect x="56" y="64" width="8" height="8"/>
       <rect x="64" y="64" width="8" height="8"/>
       <rect x="96" y="64" width="8" height="8"/>

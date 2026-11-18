@@ -258,8 +258,8 @@ differences.
 | `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                                  |
 | `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` in lores, or `Vx & 127`, `Vy & 63` in extended/hires mode, starting at `I`; `I` is not changed   |
 | `Dxy0`             | draw an extended sprite from memory at `I`; 8×16 in lores on calculator variants, 16×16 in extended/hires mode                                            |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                            |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                        |
+| `Ex9E`             | skip next opcode if key in `Vx` is pressed, if the upper four bits of `Vx` are set to anything but `0`, ghost key states can happen                                                                                                                             |
+| `ExA1`             | skip next opcode if key in `Vx` is not pressed, if the upper four bits of `Vx` are set to anything but `0`, ghost key states can happen                                                                                                                         |
 | `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                          |
 | `Fx0A`             | wait for a pressed key to be released and set `Vx` to its number                                                                                          |
 | `Fx15`             | set delay timer to `Vx`                                                                                                                                   |
@@ -373,7 +373,7 @@ where a collision happened plus the number of rows clipped at the bottom border.
     0x3C, 0x7E, 0xC3, 0x03, 0x0E, 0x0E, 0x03, 0xC3, 0x7E, 0x3C, // big 3
     0x06, 0x0E, 0x1E, 0x36, 0x66, 0xC6, 0xFF, 0xFF, 0x06, 0x06, // big 4
     0xFF, 0xFF, 0xC0, 0xC0, 0xFC, 0xFE, 0x03, 0xC3, 0x7E, 0x3C, // big 5
-    0x3E, 0x7C, 0xE0, 0xC0, 0xFC, 0xFE, 0xC3, 0xC3, 0x7E, 0x3C, // big 6
+    0x3E, 0x7C, 0xC0, 0xC0, 0xFC, 0xFE, 0xC3, 0xC3, 0x7E, 0x3C, // big 6
     0xFF, 0xFF, 0x03, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x60, 0x60, // big 7
     0x3C, 0x7E, 0xC3, 0xC3, 0x7E, 0x7E, 0xC3, 0xC3, 0x7E, 0x3C, // big 8
     0x3C, 0x7E, 0xC3, 0xC3, 0x7F, 0x3F, 0x03, 0x03, 0x3E, 0x7C  // big 9
@@ -498,6 +498,7 @@ Okay, you know CHIP-8, but what's different about SUPER-CHIP? Here are the diffe
 * `8xy6`/`8xyE` are only use `Vx`, so they do `Vx >>= 1`/`Vx <<= 1` instead of `Vx = Vy >> 1`/`Vx = Vy << 1` and `y` is ignored.
 * `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`, _so the `x` nibble doubles as part of the 12 bit address and an index for the register to add_.
 * `Dxy0` draws a graphics pattern from memory at `I` like CHIP-8 `Dxyn`, but with a size of 8×16 pixels in lores mode and 16×16 pixels in extended/hires mode (the pattern is orderd in rows, so first 8 pixels if first row, second 8 pixels of first row, first 8 pixels of second row and so on).
+* `Ex9E`/`ExA1` are not masking and thus not protected agains ghost key states if key numbers greater than 15 are queried
 * Incrementing `I` above `0xFFF` with `Fx1E` ends the interpreter.
 * `Fx75`/`Fx85` store/load registers from `V0` to `Vx` to a persistent storage (`x <= 7`), the limit of at most 8 registers is based on th fact that the calculator had only persistent storage for that many (64 bits user flags, that survived exit of the interpreter).
 
@@ -628,7 +629,7 @@ _Same as the BETA one (above)._
     0x3C, 0x7E, 0xC3, 0x03, 0x0E, 0x0E, 0x03, 0xC3, 0x7E, 0x3C, // big 3
     0x06, 0x0E, 0x1E, 0x36, 0x66, 0xC6, 0xFF, 0xFF, 0x06, 0x06, // big 4
     0xFF, 0xFF, 0xC0, 0xC0, 0xFC, 0xFE, 0x03, 0xC3, 0x7E, 0x3C, // big 5
-    0x3E, 0x7C, 0xE0, 0xC0, 0xFC, 0xFE, 0xC3, 0xC3, 0x7E, 0x3C, // big 6
+    0x3E, 0x7C, 0xC0, 0xC0, 0xFC, 0xFE, 0xC3, 0xC3, 0x7E, 0x3C, // big 6
     0xFF, 0xFF, 0x03, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x60, 0x60, // big 7
     0x3C, 0x7E, 0xC3, 0xC3, 0x7E, 0x7E, 0xC3, 0xC3, 0x7E, 0x3C, // big 8
     0x3C, 0x7E, 0xC3, 0xC3, 0x7F, 0x3F, 0x03, 0x03, 0x3E, 0x7C  // big 9

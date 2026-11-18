@@ -209,8 +209,8 @@ The table below enumerates the CHIP-48 opcode set. Opcodes not mentioned as diff
 | `Bxkk`             | jump to address `xkk + Vx`, so the `x` nibble doubles as the upper address nibble and the index of the register to add                                                                     |
 | `Cxkk`             | set `Vx` to a random byte masked (bitwise AND) with `kk`                                                                                                                                   |
 | `Dxyn`             | draw 8×n pixel graphics at position `Vx & 63`, `Vy & 31` with data from memory, starting at the address in `I`, `I` is not changed; display wait applies                                  |
-| `Ex9E`             | skip next opcode if key in the lower 4 bits of `Vx` is pressed                                                                                                                             |
-| `ExA1`             | skip next opcode if key in the lower 4 bits of `Vx` is not pressed                                                                                                                         |
+| `Ex9E`             | skip next opcode if key in `Vx` is pressed, if the upper four bits of `Vx` are set to anything but `0`, ghost key states can happen                                                                                                                             |
+| `ExA1`             | skip next opcode if key in `Vx` is not pressed, if the upper four bits of `Vx` are set to anything but `0`, ghost key states can happen                                                                                                                         |
 | `Fx07`             | set `Vx` to the current value of the delay timer                                                                                                                                           |
 | `Fx0A`             | wait for a pressed key to be released and set `Vx` to its number                                                                                                                           |
 | `Fx15`             | set delay timer to `Vx`                                                                                                                                                                    |
@@ -299,6 +299,7 @@ Okay, you know CHIP-8, but what's different about CHIP-48? Here are the differen
 * `8xy1`/`8xy2`/`8xy3` do not reset `VF` but leave it unchanged.
 * `8xy6`/`8xyE` are only use `Vx`, so they do `Vx >>= 1`/`Vx <<= 1` instead of `Vx = Vy >> 1`/`Vx = Vy << 1` and `y` is ignored.
 * `Bmmm` here is `Bxkk` and jumps to `xkk + Vx`, _so the `x` nibble doubles as part of the 12 bit address and an index for the register to add_.
+* `Ex9E`/`ExA1` are not masking and thus not protected agains ghost key states if key numbers greater than 15 are queried
 * Incrementing `I` above `0xFFF` with `Fx1E` ends the interpreter.
 * `Fx55`/`Fx65` increment `I` by `x` instead of `x+1`.
 
